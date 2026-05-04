@@ -1,0 +1,99 @@
+---
+interface Props {
+  text: string;
+  position?: 'top' | 'right' | 'bottom' | 'left';
+}
+
+const { text, position = 'top' } = Astro.props;
+---
+
+<span class={`tooltip tooltip--${position}`}>
+  <span class="tooltip__trigger">
+    <slot />
+  </span>
+  <span class="tooltip__content" role="tooltip">{text}</span>
+</span>
+
+<style>
+  .tooltip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .tooltip__trigger {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .tooltip__content {
+    position: absolute;
+    min-width: max-content;
+    padding: 0.75rem 0.875rem;
+    border: 1px solid rgb(var(--color-outline-variant-rgb) / 0.2);
+    border-radius: var(--radius-md);
+    background: rgb(var(--color-surface-variant-rgb) / 0.6);
+    color: var(--color-on-surface);
+    font-size: var(--text-label-md);
+    line-height: 1.4;
+    backdrop-filter: blur(var(--blur-glass));
+    box-shadow: var(--shadow-ambient);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(0.5rem) scale(0.96);
+    transition:
+      opacity var(--transition-precision),
+      transform var(--transition-precision);
+    z-index: 10;
+  }
+
+  .tooltip:hover .tooltip__content,
+  .tooltip:focus-within .tooltip__content {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .tooltip--top .tooltip__content {
+    bottom: calc(100% + var(--space-12));
+    left: 50%;
+    transform: translate(-50%, 0.5rem) scale(0.96);
+  }
+
+  .tooltip--top:hover .tooltip__content,
+  .tooltip--top:focus-within .tooltip__content {
+    transform: translate(-50%, 0) scale(1);
+  }
+
+  .tooltip--bottom .tooltip__content {
+    top: calc(100% + var(--space-12));
+    left: 50%;
+    transform: translate(-50%, -0.5rem) scale(0.96);
+  }
+
+  .tooltip--bottom:hover .tooltip__content,
+  .tooltip--bottom:focus-within .tooltip__content {
+    transform: translate(-50%, 0) scale(1);
+  }
+
+  .tooltip--left .tooltip__content {
+    top: 50%;
+    right: calc(100% + var(--space-12));
+    transform: translate(0.5rem, -50%) scale(0.96);
+  }
+
+  .tooltip--left:hover .tooltip__content,
+  .tooltip--left:focus-within .tooltip__content {
+    transform: translate(0, -50%) scale(1);
+  }
+
+  .tooltip--right .tooltip__content {
+    top: 50%;
+    left: calc(100% + var(--space-12));
+    transform: translate(-0.5rem, -50%) scale(0.96);
+  }
+
+  .tooltip--right:hover .tooltip__content,
+  .tooltip--right:focus-within .tooltip__content {
+    transform: translate(0, -50%) scale(1);
+  }
+</style>

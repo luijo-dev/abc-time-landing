@@ -1,0 +1,25 @@
+<article class="card">
+  <slot />
+</article>
+
+<style>
+  .card {
+    padding: var(--space-48) var(--space-32);
+    border-radius: var(--radius-sm);
+    background: rgb(var(--color-surface-variant-rgb) / 0.18);
+    background-color: var(--color-surface-container-low);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-ambient);
+    transition:
+      background-color var(--transition-precision),
+      backdrop-filter var(--transition-precision),
+      transform var(--transition-precision);
+  }
+
+  .card:hover,
+  .card:focus-within {
+    background-color: var(--color-surface-container-high);
+    backdrop-filter: blur(16px);
+    transform: translateY(-2px);
+  }
+</style>
