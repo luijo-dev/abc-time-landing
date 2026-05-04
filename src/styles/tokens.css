@@ -19,6 +19,12 @@
   --color-outline-variant-rgb: 141 131 100;
   --color-surface-variant-rgb: 36 35 33;
   --color-shadow-rgb: 14 14 14;
+  --vitrine-gradient-start: #0e0e0e;
+  --vitrine-gradient-warm: #1a170f;
+  --vitrine-gold-whisper: rgb(212 175 55 / 0.06);
+  --vitrine-smoke: rgb(14 14 14 / 0.4);
+  --vitrine-carousel-item-mobile: 80vw;
+  --vitrine-carousel-item-desktop: 45vw;
 
   /* Typography */
   --font-display: 'Noto Serif', 'Times New Roman', serif;

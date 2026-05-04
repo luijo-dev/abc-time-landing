@@ -1,0 +1,26 @@
+<div class="vitrine-background" aria-hidden="true"></div>
+
+<style>
+  .vitrine-background {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      135deg,
+      var(--vitrine-gradient-start) 0%,
+      var(--color-background) 40%,
+      var(--vitrine-gradient-warm) 72%,
+      var(--vitrine-gold-whisper) 100%
+    );
+  }
+
+  .vitrine-background::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at top left, rgb(212 175 55 / 0.08), transparent 34%),
+      radial-gradient(ellipse at center, transparent 24%, var(--vitrine-smoke) 100%);
+    pointer-events: none;
+  }
+ </style>
