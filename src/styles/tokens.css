@@ -60,4 +60,6 @@
   --shadow-float: 0 20px 50px rgb(var(--color-shadow-rgb) / 0.5);
   --blur-glass: 20px;
   --transition-precision: 200ms ease;
+  --loading-duration: 1500ms;
+  --loading-ease: ease-in-out;
 }

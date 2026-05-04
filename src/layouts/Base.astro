@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import LoadingScreen from '../components/ui/LoadingScreen.astro';
 
 interface Props {
   title?: string;
@@ -10,6 +11,10 @@ const {
   title = 'AVC TIME | Curaduría de alta relojería',
   description = 'Una experiencia editorial para descubrir piezas de alta relojería y continuar la conversación por WhatsApp.',
 } = Astro.props;
+
+const loadingScreenShowOn = 'root';
+const shouldShowLoadingScreen =
+  loadingScreenShowOn === 'all' || Astro.url.pathname === '/';
 ---
 
 <html lang="es">
@@ -29,6 +34,9 @@ const {
     <title>{title}</title>
   </head>
   <body>
+    {shouldShowLoadingScreen && (
+      <LoadingScreen variant="black" minDuration={2000} showOn={loadingScreenShowOn} />
+    )}
     <slot />
   </body>
 </html>

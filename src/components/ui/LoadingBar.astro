@@ -1,0 +1,66 @@
+---
+interface Props {
+  duration?: number;
+}
+
+const { duration = 2500 }: Props = Astro.props;
+---
+
+<div class="loading-bar" aria-hidden="true">
+  <div class="loading-bar__track">
+    <div class="loading-bar__fill" style={`animation-duration: ${duration}ms`}></div>
+  </div>
+</div>
+
+<style>
+  .loading-bar {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .loading-bar__track {
+    width: 120px;
+    height: 2px;
+    background: rgba(242 202 80 / 0.1);
+    position: relative;
+    overflow: hidden;
+    border-radius: 1px;
+  }
+
+  .loading-bar__fill {
+    position: absolute;
+    inset: 0;
+    width: 0%;
+    background: linear-gradient(90deg, #554300, #d4af37, #f2ca50, #ffe088, #f2ca50, #d4af37, #554300);
+    background-size: 300% 100%;
+    animation:
+      bar-fill 2.5s cubic-bezier(0.65, 0, 0.35, 1) forwards,
+      bar-shimmer 1.5s linear infinite;
+  }
+
+  @keyframes bar-fill {
+    0% {
+      width: 0%;
+    }
+    100% {
+      width: 100%;
+    }
+  }
+
+  @keyframes bar-shimmer {
+    0% {
+      background-position: 100% center;
+    }
+    100% {
+      background-position: -100% center;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .loading-bar__fill {
+      animation: bar-fill 2.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+      background: #f2ca50;
+    }
+  }
+</style>

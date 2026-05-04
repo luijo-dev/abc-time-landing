@@ -1,0 +1,75 @@
+---
+interface Props {
+  text?: string;
+}
+
+const { text = 'AVC TIME' }: Props = Astro.props;
+---
+
+<span class="brand-text" aria-label={text}>
+  <span class="brand-text__gradient" aria-hidden="true">{text}</span>
+  <span class="brand-text__reveal-mask" aria-hidden="true"></span>
+</span>
+
+<style>
+  .brand-text {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    padding-inline: var(--space-24);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2.75rem, 8vw, 4.5rem);
+    letter-spacing: var(--letter-spacing-label);
+    line-height: 1;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .brand-text__gradient {
+    display: inline-block;
+    background: linear-gradient(90deg, #554300, #f2ca50, #ffe088, #f2ca50, #554300);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: brand-shimmer 4s linear infinite;
+  }
+
+  /* Black circle overlay that fades out — creates subtle reveal */
+  .brand-text__reveal-mask {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, #0e0e0e 40%, transparent 70%);
+    opacity: 1;
+    pointer-events: none;
+    animation: brand-mask-fade 2s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+  }
+
+  @keyframes brand-shimmer {
+    to {
+      background-position: 200% center;
+    }
+  }
+
+  @keyframes brand-mask-fade {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.08;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .brand-text__gradient {
+      animation: none;
+      background-position: center;
+    }
+
+    .brand-text__reveal-mask {
+      animation: none;
+      opacity: 0.08;
+    }
+  }
+</style>
