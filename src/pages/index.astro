@@ -1,152 +1,196 @@
 ---
-import Button from '../components/ui/Button.astro';
-import Card from '../components/ui/Card.astro';
-import Tooltip from '../components/ui/Tooltip.astro';
+import SpecPanel from '../components/vitrine/SpecPanel.astro';
+import VitrineBackground from '../components/vitrine/VitrineBackground.astro';
+import VitrineCTA from '../components/vitrine/VitrineCTA.astro';
+import VitrineHeader from '../components/vitrine/VitrineHeader.astro';
+import WatchCarousel from '../components/vitrine/WatchCarousel.astro';
 import Base from '../layouts/Base.astro';
+
+interface WatchSpec {
+  icon: string;
+  label: string;
+  value: string;
+}
+
+interface Watch {
+  id: string;
+  name: string;
+  collection: string;
+  imageSrc?: string;
+  imageAlt: string;
+  specs: [WatchSpec, WatchSpec, WatchSpec];
+  ctaUrl: string;
+}
+
+const watches: Watch[] = [
+  {
+    id: 'daytona',
+    name: 'Daytona',
+    collection: 'Cosmograph',
+    imageSrc: '/images/watches/daytona.webp',
+    imageAlt: 'Rolex Cosmograph Daytona en fondo oscuro editorial',
+    specs: [
+      { icon: '⚙️', label: 'Movimiento', value: 'Automático Cal. 4131' },
+      { icon: '◈', label: 'Material', value: 'Oro Everose 18k' },
+      { icon: '◷', label: 'Reserva', value: '72 horas' },
+    ],
+    ctaUrl: 'https://wa.me/5490000000000?text=Hola%2C%20quiero%20consultar%20por%20el%20Cosmograph%20Daytona',
+  },
+  {
+    id: 'royal-oak',
+    name: 'Royal Oak',
+    collection: 'Audemars Piguet',
+    imageSrc: '/images/watches/royal-oak.webp',
+    imageAlt: 'Audemars Piguet Royal Oak con iluminación de vitrina premium',
+    specs: [
+      { icon: '⚙️', label: 'Movimiento', value: 'Automático Cal. 4302' },
+      { icon: '◈', label: 'Material', value: 'Acero satinado' },
+      { icon: '◷', label: 'Reserva', value: '70 horas' },
+    ],
+    ctaUrl: 'https://wa.me/5490000000000?text=Hola%2C%20quiero%20consultar%20por%20el%20Royal%20Oak',
+  },
+  {
+    id: 'submariner',
+    name: 'Submariner',
+    collection: 'Oyster Perpetual',
+    imageSrc: '/images/watches/submariner.webp',
+    imageAlt: 'Rolex Submariner en composición oscura con brillo cálido',
+    specs: [
+      { icon: '⚙️', label: 'Movimiento', value: 'Automático Cal. 3235' },
+      { icon: '◈', label: 'Material', value: 'Oystersteel' },
+      { icon: '◷', label: 'Reserva', value: '70 horas' },
+    ],
+    ctaUrl: 'https://wa.me/5490000000000?text=Hola%2C%20quiero%20consultar%20por%20el%20Submariner',
+  },
+];
 ---
 
 <Base
-  title="AVC TIME | Fundación visual"
-  description="Base inicial del sistema visual para una experiencia de alta relojería sobria, editorial y precisa."
+  title="AVC TIME | Vitrina de alta relojería"
+  description="Una vitrina editorial de alta relojería para descubrir piezas icónicas y continuar la conversación por WhatsApp."
 >
-  <main class="page-shell landing-foundation">
-    <section class="hero-copy">
-      <p class="eyebrow">The Digital Curator</p>
-      <h1>AVC TIME materializa una presencia sobria, técnica y silenciosamente lujosa.</h1>
-      <p class="intro">
-        Esta base valida tipografía, color, superficie y ritmo visual antes de construir la vitrina
-        principal de la colección.
-      </p>
+  <VitrineBackground />
+  <div class="vitrine-shell">
+    <VitrineHeader />
 
-      <div class="actions">
-        <Button href="https://wa.me/5490000000000" variant="primary">
-          Consultar con concierge
-        </Button>
-        <Button href="#foundation-card" variant="secondary">Ver materialidad</Button>
-        <Tooltip text="Tooltip de referencia con glassmorphism y transición contenida." position="right">
-          <Button variant="tertiary">Detalle curatorial</Button>
-        </Tooltip>
-      </div>
-    </section>
-
-    <Card>
-      <div class="feature-card" id="foundation-card">
-        <div>
-          <p class="eyebrow">Editorial foundation</p>
-          <h2>Capas tonales, serif con autoridad y acentos champagne.</h2>
+    <main class="page-shell vitrine-content">
+      <section class="vitrine-stage" aria-labelledby="vitrine-heading">
+        <div class="vitrine-copy">
+          <p class="vitrine-copy__eyebrow">Curaduría privada</p>
+          <h1 id="vitrine-heading">Piezas que hablan con precisión, materia y presencia.</h1>
+          <p>
+            Una selección contenida de referencias icónicas para conversaciones serias, guiadas por
+            disponibilidad y criterio.
+          </p>
         </div>
 
-        <p>
-          El sistema evita la estética de catálogo genérico: no hay líneas duras para separar,
-          solo profundidad, contraste medido y aire suficiente para que cada pieza respire.
-        </p>
+        <WatchCarousel items={watches} />
+      </section>
 
-        <ul class="spec-list">
-          <li>
-            <span>Tipografía</span>
-            <strong>Noto Serif + Inter</strong>
-          </li>
-          <li>
-            <span>Superficie</span>
-            <strong>Obsidiana y metal cálido</strong>
-          </li>
-          <li>
-            <span>Conversión</span>
-            <strong>WhatsApp concierge</strong>
-          </li>
-        </ul>
-      </div>
-    </Card>
-  </main>
+      <aside class="vitrine-details" aria-label="Detalles del reloj activo">
+        <div class="vitrine-panels">
+          {watches.map((watch, index) => (
+            <SpecPanel specs={watch.specs} index={index} isActive={index === 0} />
+          ))}
+        </div>
+
+        <VitrineCTA href={watches[0].ctaUrl} text="Consultar disponibilidad" />
+      </aside>
+    </main>
+  </div>
+
+  <script is:inline>
+    document.body.dataset.vitrine = 'true';
+  </script>
 </Base>
 
 <style>
-  .landing-foundation {
-    display: grid;
-    gap: var(--space-48);
-    padding-block: var(--space-64);
+  .vitrine-shell {
+    min-height: 100vh;
   }
 
-  .hero-copy {
+  .vitrine-content {
+    display: grid;
+    gap: var(--space-32);
+    padding-block: var(--space-32) var(--space-64);
+  }
+
+  .vitrine-stage,
+  .vitrine-details {
     display: grid;
     gap: var(--space-24);
-    padding-block: var(--space-48) var(--space-16);
+    align-content: start;
   }
 
-  .eyebrow {
+  .vitrine-copy {
+    display: grid;
+    gap: var(--space-12);
+    max-width: 34rem;
+    padding-inline: var(--space-16);
+  }
+
+  .vitrine-copy__eyebrow {
     color: var(--color-on-surface-variant);
-    font-size: var(--text-label-md);
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: var(--letter-spacing-label);
     text-transform: uppercase;
   }
 
-  h1,
-  h2 {
-    font-family: var(--font-display);
-    font-weight: 600;
-    line-height: var(--line-height-tight);
-    letter-spacing: var(--letter-spacing-display);
-  }
-
   h1 {
-    max-width: 12ch;
-    font-size: clamp(3rem, 6vw, var(--text-display-lg));
-  }
-
-  h2 {
-    max-width: 18ch;
-    font-size: clamp(2rem, 4vw, var(--text-headline-md));
-  }
-
-  .intro,
-  .feature-card p {
-    max-width: 60ch;
-    color: var(--color-on-surface-variant);
-  }
-
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-16);
-    align-items: center;
-  }
-
-  .feature-card {
-    display: grid;
-    gap: var(--space-24);
-  }
-
-  .spec-list {
-    display: grid;
-    gap: var(--space-24);
-  }
-
-  .spec-list li {
-    display: grid;
-    gap: var(--space-4);
-  }
-
-  .spec-list span {
-    color: var(--color-on-surface-variant);
-    font-size: var(--text-label-md);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .spec-list strong {
     font-family: var(--font-display);
-    font-size: 1.125rem;
-    font-weight: 500;
+    font-size: clamp(2.5rem, 8vw, 4.75rem);
+    font-weight: 600;
+    letter-spacing: var(--letter-spacing-display);
+    line-height: var(--line-height-tight);
+    text-wrap: balance;
   }
 
-  @media (max-width: 720px) {
-    .landing-foundation {
-      padding-block: var(--space-48);
+  .vitrine-copy p:last-child {
+    color: var(--color-on-surface-variant);
+    max-width: 56ch;
+  }
+
+  .vitrine-panels {
+    display: grid;
+  }
+
+  @media (min-width: 720px) {
+    .vitrine-content {
+      gap: var(--space-48);
+      padding-top: var(--space-48);
     }
 
-    .actions {
-      align-items: stretch;
+    .vitrine-copy {
+      padding-inline: 0;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .vitrine-content {
+      grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 1fr);
+      align-items: start;
+      gap: var(--space-48);
+      padding-top: var(--space-64);
+    }
+
+    .vitrine-stage {
+      gap: var(--space-32);
+    }
+
+    .vitrine-details {
+      position: sticky;
+      top: calc(var(--space-64) + 5rem);
+      gap: var(--space-32);
+      padding-top: var(--space-32);
+    }
+  }
+
+  @media (max-width: 719px) {
+    .vitrine-content {
+      width: min(100%, calc(100% - (var(--space-16) * 2)));
+      gap: var(--space-24);
+      padding-block: var(--space-24) var(--space-48);
     }
   }
 </style>

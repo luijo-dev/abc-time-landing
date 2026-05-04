@@ -5,9 +5,19 @@ interface Props {
 }
 ---
 
-<figure class="watch-image">
+<figure class="watch-image" data-watch-image-root>
   {Astro.props.src ? (
-    <img class="watch-image__asset" src={Astro.props.src} alt={Astro.props.alt} loading="lazy" decoding="async" />
+    <>
+      <img
+        class="watch-image__asset"
+        src={Astro.props.src}
+        alt={Astro.props.alt}
+        loading="lazy"
+        decoding="async"
+        onerror="this.closest('[data-watch-image-root]')?.setAttribute('data-image-fallback', 'true'); this.remove();"
+      />
+      <div class="watch-image__placeholder" role="img" aria-label={Astro.props.alt}></div>
+    </>
   ) : (
     <div class="watch-image__placeholder" role="img" aria-label={Astro.props.alt}></div>
   )}
@@ -38,6 +48,14 @@ interface Props {
 
   .watch-image__asset {
     object-fit: contain;
+  }
+
+  .watch-image__asset + .watch-image__placeholder {
+    display: none;
+  }
+
+  .watch-image[data-image-fallback='true'] .watch-image__placeholder {
+    display: block;
   }
 
   .watch-image__placeholder {

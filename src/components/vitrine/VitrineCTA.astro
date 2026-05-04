@@ -5,9 +5,16 @@ interface Props {
 }
 ---
 
-<div class="vitrine-cta">
+<div class="vitrine-cta" data-vitrine-cta>
   <span class="vitrine-cta__eyebrow">Atención privada</span>
-  <a class="vitrine-cta__action" href={Astro.props.href} target="_blank" rel="noreferrer">
+  <a
+    class="vitrine-cta__action"
+    data-vitrine-cta-link
+    href={Astro.props.href}
+    target="_blank"
+    rel="noreferrer"
+    aria-label="Consultar con concierge por WhatsApp"
+  >
     <span>{Astro.props.text ?? "Consultar con concierge"}</span>
     <span class="vitrine-cta__arrow" aria-hidden="true">↗</span>
   </a>

@@ -1,0 +1,130 @@
+---
+import WatchCarouselItem from './WatchCarouselItem.astro';
+import WatchImage from './WatchImage.astro';
+
+interface Watch {
+  id: string;
+  name: string;
+  collection: string;
+  imageSrc?: string;
+  imageAlt: string;
+  specs: Array<{
+    icon: string;
+    label: string;
+    value: string;
+  }>;
+  ctaUrl: string;
+}
+
+interface Props {
+  items: Watch[];
+}
+
+const { items } = Astro.props;
+---
+
+<section class="watch-carousel" data-carousel data-active-index="0" aria-label="Vitrina principal de relojes">
+  <div class="watch-carousel__track" data-carousel-track role="listbox" aria-label="Selección de relojes destacados">
+    {items.map((item, index) => (
+      <WatchCarouselItem item={item} index={index} isActive={index === 0}>
+        <WatchImage src={item.imageSrc} alt={item.imageAlt} />
+      </WatchCarouselItem>
+    ))}
+  </div>
+</section>
+
+<script is:inline>
+  const carouselRoot = document.currentScript?.previousElementSibling;
+
+  if (carouselRoot instanceof HTMLElement) {
+    const items = Array.from(carouselRoot.querySelectorAll('[data-carousel-item]'));
+    const specPanels = Array.from(document.querySelectorAll('[data-spec-panel]'));
+    const ctaLink = document.querySelector('[data-vitrine-cta-link]');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const setActive = (rawIndex, shouldFocus = false) => {
+      const nextIndex = (rawIndex + items.length) % items.length;
+
+      items.forEach((item, index) => {
+        const isActive = index === nextIndex;
+        item.classList.toggle('is-active', isActive);
+        item.setAttribute('aria-selected', String(isActive));
+        if (isActive) {
+          item.setAttribute('aria-current', 'true');
+        } else {
+          item.removeAttribute('aria-current');
+        }
+        item.tabIndex = isActive ? 0 : -1;
+      });
+
+      specPanels.forEach((panel) => {
+        const isActive = panel.getAttribute('data-spec-index') === String(nextIndex);
+        panel.classList.toggle('is-hidden', !isActive);
+        panel.setAttribute('aria-hidden', String(!isActive));
+      });
+
+      const activeItem = items[nextIndex];
+      if (ctaLink instanceof HTMLAnchorElement && activeItem instanceof HTMLElement) {
+        ctaLink.href = activeItem.dataset.ctaUrl ?? ctaLink.href;
+        ctaLink.setAttribute('aria-label', `${activeItem.getAttribute('aria-label') ?? 'Consultar'} por WhatsApp`);
+      }
+
+      carouselRoot.dataset.activeIndex = String(nextIndex);
+      activeItem?.scrollIntoView({
+        behavior: reducedMotion ? 'auto' : 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+
+      if (shouldFocus) {
+        activeItem?.focus();
+      }
+    };
+
+    items.forEach((item, index) => {
+      item.addEventListener('click', () => setActive(index));
+      item.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+          event.preventDefault();
+          setActive(index + (event.key === 'ArrowRight' ? 1 : -1), true);
+        }
+
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          setActive(index, true);
+        }
+      });
+    });
+
+    setActive(Number(carouselRoot.dataset.activeIndex ?? '0'));
+  }
+</script>
+
+<style>
+  .watch-carousel {
+    min-width: 0;
+  }
+
+  .watch-carousel__track {
+    display: flex;
+    gap: var(--space-16);
+    align-items: stretch;
+    overflow-x: auto;
+    padding: var(--space-16) calc((100% - var(--vitrine-carousel-item-mobile)) / 2);
+    scroll-padding-inline: calc((100% - var(--vitrine-carousel-item-mobile)) / 2);
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .watch-carousel__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .watch-carousel__track {
+      gap: var(--space-24);
+      padding-inline: calc((100% - var(--vitrine-carousel-item-desktop)) / 2);
+      scroll-padding-inline: calc((100% - var(--vitrine-carousel-item-desktop)) / 2);
+    }
+  }
+</style>
