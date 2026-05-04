@@ -1,0 +1,39 @@
+---
+interface Props {
+  name: string;
+  collection: string;
+}
+---
+
+<div class="watch-title">
+  <span class="watch-title__collection">{Astro.props.collection}</span>
+  <h2 class="watch-title__name">{Astro.props.name}</h2>
+</div>
+
+<style>
+  .watch-title {
+    display: grid;
+    gap: var(--space-8);
+    align-content: start;
+  }
+
+  .watch-title__collection {
+    color: var(--color-on-surface-variant);
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: var(--letter-spacing-label);
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .watch-title__name {
+    color: var(--color-on-surface);
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, var(--text-display-lg));
+    font-weight: 600;
+    letter-spacing: var(--letter-spacing-display);
+    line-height: var(--line-height-tight);
+    text-wrap: balance;
+  }
+</style>

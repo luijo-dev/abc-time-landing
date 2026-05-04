@@ -1,0 +1,66 @@
+---
+interface Props {
+  href: string;
+  text?: string;
+}
+---
+
+<div class="vitrine-cta">
+  <span class="vitrine-cta__eyebrow">Atención privada</span>
+  <a class="vitrine-cta__action" href={Astro.props.href} target="_blank" rel="noreferrer">
+    <span>{Astro.props.text ?? "Consultar con concierge"}</span>
+    <span class="vitrine-cta__arrow" aria-hidden="true">↗</span>
+  </a>
+</div>
+
+<style>
+  .vitrine-cta {
+    display: grid;
+    gap: var(--space-12);
+    justify-items: start;
+    align-content: start;
+  }
+
+  .vitrine-cta__eyebrow {
+    color: var(--color-on-surface-variant);
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: var(--letter-spacing-label);
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .vitrine-cta__action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-12);
+    min-height: 3.25rem;
+    padding: 0.95rem 1.5rem;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(45deg, var(--color-primary), var(--color-primary-container));
+    box-shadow: var(--shadow-ambient);
+    color: var(--color-on-primary);
+    font-family: var(--font-body);
+    font-size: var(--text-label-md);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition:
+      transform var(--transition-precision),
+      box-shadow var(--transition-precision),
+      filter var(--transition-precision);
+  }
+
+  .vitrine-cta__action:hover,
+  .vitrine-cta__action:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 24px 52px rgb(var(--color-shadow-rgb) / 0.56);
+    filter: saturate(1.05);
+  }
+
+  .vitrine-cta__arrow {
+    font-size: 1rem;
+    line-height: 1;
+  }
+</style>
