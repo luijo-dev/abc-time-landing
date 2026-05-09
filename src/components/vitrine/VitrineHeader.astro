@@ -1,9 +1,40 @@
+---
+const navItems = [
+  { href: '/', label: 'Inicio', isActive: true },
+  { href: '/catalogo', label: 'Catálogo', isActive: false },
+];
+---
+
 <header class="vitrine-header">
   <div class="vitrine-header__inner">
-    <a class="vitrine-header__brand" href="/" aria-label="AVC TIME">
-      <span class="vitrine-header__eyebrow">Alta relojería</span>
-      <span class="vitrine-header__name">AVC TIME</span>
+    <a class="vitrine-header__brand" href="/" aria-label="AVC TIME — Inicio">
+      AVC Time
     </a>
+
+    <nav class="vitrine-header__nav" aria-label="Navegación principal">
+      {navItems.map((item) => (
+        <a
+          class:list={['vitrine-header__link', item.isActive && 'is-active']}
+          href={item.href}
+          aria-current={item.isActive ? 'page' : undefined}
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="vitrine-header__actions" aria-label="Accesos de cliente">
+      <a class="vitrine-header__icon" href="/catalogo" aria-label="Ver catálogo seleccionado">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M7.25 8.25h9.5l-.72 9.5a2 2 0 0 1-2 1.85H9.97a2 2 0 0 1-2-1.85l-.72-9.5Z" />
+          <path d="M9 8.25V7a3 3 0 0 1 6 0v1.25" />
+        </svg>
+      </a>
+
+      <a class="vitrine-header__profile" href="/" aria-label="Perfil AVC TIME">
+        <span aria-hidden="true">AVC</span>
+      </a>
+    </div>
   </div>
 </header>
 
@@ -12,58 +43,127 @@
     position: sticky;
     top: 0;
     z-index: 20;
-    padding: var(--space-16) var(--space-24) 0;
+    width: 100%;
+    background:
+      linear-gradient(
+        180deg,
+        var(--color-surface-lowest) 0%,
+        var(--color-surface-lowest) 68%,
+        rgb(14 14 14 / 0) 100%
+      );
+    backdrop-filter: blur(var(--blur-glass));
+    -webkit-backdrop-filter: blur(var(--blur-glass));
   }
 
   .vitrine-header__inner {
-    width: min(1120px, 100%);
-    margin: 0 auto;
-    padding: var(--space-16) var(--space-24);
-    border: 1px solid rgb(var(--color-outline-variant-rgb) / 0.12);
-    border-radius: var(--radius-lg);
-    background: rgb(var(--color-surface-variant-rgb) / 0.72);
-    backdrop-filter: blur(var(--blur-glass));
-    -webkit-backdrop-filter: blur(var(--blur-glass));
-    box-shadow: var(--shadow-ambient);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: center;
+    min-height: 4.5rem;
+    width: 100%;
+    padding: var(--space-16) var(--space-24) var(--space-24);
   }
 
   .vitrine-header__brand {
-    display: inline-grid;
-    gap: var(--space-4);
+    justify-self: start;
+    color: var(--color-primary);
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1;
   }
 
-  .vitrine-header__eyebrow {
+  .vitrine-header__nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(var(--space-16), 4vw, var(--space-32));
+  }
+
+  .vitrine-header__link {
+    display: inline-flex;
+    align-items: center;
     color: var(--color-on-surface-variant);
     font-family: var(--font-body);
-    font-size: 0.75rem;
+    font-size: var(--text-label-md);
     font-weight: 600;
-    letter-spacing: var(--letter-spacing-label);
-    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    transition: color var(--transition-precision);
   }
 
-  .vitrine-header__name {
-    color: var(--color-on-surface);
-    font-family: var(--font-display);
-    font-size: clamp(1.625rem, 4vw, 2.125rem);
-    font-weight: 600;
+  .vitrine-header__link:hover,
+  .vitrine-header__link:focus-visible,
+  .vitrine-header__link.is-active {
+    color: var(--color-primary);
+  }
+
+  .vitrine-header__actions {
+    display: flex;
+    align-items: center;
+    justify-self: end;
+    gap: var(--space-16);
+  }
+
+  .vitrine-header__icon,
+  .vitrine-header__profile {
+    display: inline-grid;
+    place-items: center;
+    color: var(--color-on-surface-variant);
+    transition: color var(--transition-precision), background-color var(--transition-precision);
+  }
+
+  .vitrine-header__icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .vitrine-header__icon svg {
+    width: 1.35rem;
+    height: 1.35rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+  }
+
+  .vitrine-header__profile {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    background: rgb(var(--color-surface-variant-rgb) / 0.6);
+    font-family: var(--font-body);
+    font-size: 0.625rem;
+    font-weight: 700;
     letter-spacing: 0.08em;
-    line-height: 1;
-    text-transform: uppercase;
   }
 
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .vitrine-header__inner {
-      background: rgb(var(--color-surface-variant-rgb) / 0.96);
-    }
+  .vitrine-header__icon:hover,
+  .vitrine-header__icon:focus-visible,
+  .vitrine-header__profile:hover,
+  .vitrine-header__profile:focus-visible {
+    color: var(--color-primary);
   }
 
   @media (max-width: 720px) {
-    .vitrine-header {
-      padding-inline: var(--space-16);
+    .vitrine-header__inner {
+      min-height: 4rem;
+      padding: var(--space-12) var(--space-16) var(--space-24);
     }
 
-    .vitrine-header__inner {
-      padding-inline: var(--space-16);
+    .vitrine-header__brand,
+    .vitrine-header__link {
+      font-size: 0.8125rem;
+    }
+
+    .vitrine-header__actions {
+      gap: var(--space-8);
+    }
+
+    .vitrine-header__profile {
+      width: 2rem;
+      height: 2rem;
     }
   }
- </style>
+</style>
