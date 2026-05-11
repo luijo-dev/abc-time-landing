@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Inter:wght@300;400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed-dim": "#c8c6c5",
+                    "on-primary": "#3c2f00",
+                    "on-secondary-fixed-variant": "#474747",
+                    "on-primary-fixed": "#241a00",
+                    "surface-container-low": "#1c1b1b",
+                    "on-surface-variant": "#d0c5af",
+                    "tertiary-fixed-dim": "#c6c7c2",
+                    "surface-container": "#201f1f",
+                    "surface-container-lowest": "#0e0e0e",
+                    "on-tertiary-fixed": "#1a1c19",
+                    "on-primary-fixed-variant": "#574500",
+                    "tertiary-fixed": "#e3e3de",
+                    "inverse-surface": "#e5e2e1",
+                    "on-tertiary-fixed-variant": "#454744",
+                    "surface-bright": "#3a3939",
+                    "outline-variant": "#4d4635",
+                    "on-error": "#690005",
+                    "on-background": "#e5e2e1",
+                    "on-surface": "#e5e2e1",
+                    "on-error-container": "#ffdad6",
+                    "primary-fixed": "#ffe088",
+                    "surface-dim": "#131313",
+                    "background": "#131313",
+                    "tertiary": "#cececa",
+                    "inverse-primary": "#735c00",
+                    "on-primary-container": "#554300",
+                    "primary": "#f2ca50",
+                    "surface-tint": "#e9c349",
+                    "surface": "#131313",
+                    "surface-variant": "#353534",
+                    "on-secondary-container": "#b6b5b4",
+                    "inverse-on-surface": "#313030",
+                    "primary-container": "#d4af37",
+                    "outline": "#99907c",
+                    "surface-container-highest": "#353534",
+                    "primary-fixed-dim": "#e9c349",
+                    "on-secondary-fixed": "#1b1c1c",
+                    "on-secondary": "#303030",
+                    "surface-container-high": "#2a2a2a",
+                    "error": "#ffb4ab",
+                    "secondary-fixed": "#e4e2e1",
+                    "tertiary-container": "#b2b3af",
+                    "on-tertiary": "#2f312e",
+                    "on-tertiary-container": "#444542",
+                    "secondary-container": "#474747",
+                    "secondary": "#c8c6c5",
+                    "error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Noto Serif"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #131313;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+        .main-canvas {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .watch-carousel-container {
+            perspective: 1200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        .watch-item {
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            position: absolute;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        /* Hitbox adjustment: Hover effect triggers on item hover */
+        .watch-carousel-container:has(.watch-item:hover) .watch-item:not(:hover) {
+            filter: grayscale(1) opacity(0.3) blur(4px);
+        }
+        .watch-carousel-container:has(.watch-item:hover) ~ .bg-dynamic {
+            filter: grayscale(1);
+        }
+        .tooltip-glass {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+            pointer-events: none;
+        }
+        .watch-item.central-watch:hover .tooltip-glass {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Carousel State Classes */
+        .left-far { transform: translateX(-450px) translateZ(-400px) scale(0.5); opacity: 0.2; z-index: 1; }
+        .left-mid { transform: translateX(-250px) translateZ(-200px) scale(0.75); opacity: 0.4; z-index: 5; }
+        .central-watch { transform: translateX(0) translateZ(0) scale(1); opacity: 1; z-index: 10; }
+        .right-mid { transform: translateX(250px) translateZ(-200px) scale(0.75); opacity: 0.4; z-index: 5; }
+        .right-far { transform: translateX(450px) translateZ(-400px) scale(0.5); opacity: 0.2; z-index: 1; }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-8 py-6 max-w-full mx-auto bg-[#131313]/60 backdrop-blur-xl no-border bg-gradient-to-b from-[#131313] to-transparent shadow-none font-['Noto_Serif'] tracking-tight">
+<div class="text-2xl font-bold tracking-tighter text-[#f2ca50] uppercase">HOROLOGUE</div>
+<nav class="hidden md:flex items-center gap-12">
+<a class="text-[#f2ca50] border-b border-[#d4af37] pb-1 transition-opacity hover:opacity-80" href="#">Inicio</a>
+<a class="text-[#e5e2e1]/70 hover:text-[#f2ca50] transition-colors duration-300" href="#">Catálogo de Productos</a>
+</nav>
+<div class="flex items-center gap-6">
+<button class="text-[#e5e2e1]/70 hover:text-[#f2ca50] transition-colors scale-95 duration-200 ease-in-out">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant/20">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="close-up portrait of a sophisticated man in a dark suit with soft studio lighting and dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDf-MVTVknxS_6VXIKsV43stg6-qdhhD7cowZtFqY0UAAjzz1CUlaQueEVYSmLy_p1Baua50AeFyc2SQH4Aa9-FkgjsFKyZab8-Tg-_YBVx39Z5AI00tcY5qgM-YLm0u_gdj9Y7T6pCExHjaB_AJSZvoPa3S6LoPTP0JJ1gjmLu6Cn359BGxRknxzPjAf5Y20b5jtNPCfDKOPJJJ7XmUHXHTokDX4p9GqBhOStPSqZ4HLlMpfwgjctFU547BWSWhv3w8_6vWIm6aazd"/>
+</div>
+</div>
+</header>
+<!-- Main Dynamic Background -->
+<div class="bg-dynamic fixed inset-0 -z-10 bg-gradient-to-br from-surface-container-lowest via-surface-dim to-[#241a00] transition-all duration-1000"></div>
+<main class="main-canvas">
+<!-- Center Content / Watch Carousel -->
+<div class="watch-carousel-container watch-group">
+<!-- Far Background Watches (L & R) -->
+<div class="watch-item left-far -translate-x-[450px] translate-z-[-400px] scale-50 opacity-20" data-index="0">
+<img alt="Luxury Watch" class="w-[400px] h-auto drop-shadow-2xl" data-alt="Close up high-end chronograph watch with leather strap on a dark reflective surface with golden accent lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwj0JQXnydjcxnbHpWXsNyqIN2KFAw0GLv8IhOJPNFtXNu10gJqn8RnNjBGzcS7TatFWxEAKmWRl7psDR5bwhS9h-PBrWB3BjHxZGDoVQvxvh94EiDXvCfpRkLu4Lnk5bD9zqXS39lgoqoz7r9zXkrIdfQGg4V53wYZx5pzjhSKTjZggxu3wJNsMgR3R7jKZ_54zTG2msQsWzLdysBrGQRaxBJsPbBfuYOnwq0lyzS5NN5Coq3VwSMozom3SdZ0PSEBH-0c5XKFS1u"/>
+</div>
+<div class="watch-item right-far translate-x-[450px] translate-z-[-400px] scale-50 opacity-20" data-index="4">
+<img alt="Luxury Watch" class="w-[400px] h-auto drop-shadow-2xl" data-alt="Premium automatic watch with silver finish and black dial floating in a dark minimalist studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3FG5d_kV4iuMbdlQIYMqO8UUnumJyhheq1IFTZHxHMKKqS5tEQM9OvAbAIwKzkjizyytwMHOyANJWSb8fB9xnjazWnZJc1LWL3QhULweFmpeRdXYxL_l6ISxBMIVnbJlkYX1UQ7GDu6Q8qhD0cD02M3JvPbCE2LwyLTKKxKA0lyJmfd_xfdUI2eeOfa1wSBhpjIgspXpiGK2srKKnyfCuVqwqhPj8MmuLgmEw2Tz8vhYYshxGBmM5Xo6z2qhu8IK_pJxSqEuhRA7B"/>
+</div>
+<!-- Middle Layer Watches -->
+<div class="watch-item left-mid -translate-x-[250px] translate-z-[-200px] scale-75 opacity-40" data-index="1">
+<img alt="Luxury Watch" class="w-[450px] h-auto drop-shadow-2xl" data-alt="Detailed view of a luxury watch dial with gold hands and mechanical complexity on a dark textured background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGzOm7nKay8JdSMoUqxY1SiUnudhlowu_3F-hhv1SsYfpnw0pqRRmT0d8wH5q6hgVyHaH1SqHWV4iWnuxjiF_mJgb3dD3PxEwk8aqqm88tP9y3WL63f2Yop5wamfC761aeGaQ0FO4j0yKb0draiTwx42LeCqG1jXx1XtyWzgaaAh7O1qo7ZBtkt2DGR7xRe_qS8nWYNyODTalQsS3PUQ4i6jzPmTcKk7dSVHUm0FgJuiEOD1QzKccjgULEfeASY3xkX1jrsuCy7v1d"/>
+</div>
+<div class="watch-item right-mid translate-x-[250px] translate-z-[-200px] scale-75 opacity-40" data-index="3">
+<img alt="Luxury Watch" class="w-[450px] h-auto drop-shadow-2xl" data-alt="Elegant luxury timepiece with rose gold bezel and intricate dial design against a deep charcoal background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpqVPXwhJAU8qmwdrrYe7CfPvOfwSykt8XaUlmmWSYghiBswn2r4UHwINAdfMfMCgdnU17GsgYT5IyvySts3kEO3i6zpZc5_EbQ2gTzySMklsfGWroY9-OgqWhJJg7kOCCTKJamSvVsdkn17iiO4ZKJohC01IntzM_S7BEANys7xTp0lenZyF4CnM6460ejVEG97jxjKzq8-4GUkEEL9MpOR4-7iLL8qf0_hbfQ6zGN6HQ0WSP68ZeSNqmlOP1AWKfpN3C9Iozb49q"/>
+</div>
+<!-- Central Foreground Watch -->
+<div class="watch-item central-watch z-10 translate-z-0 scale-100 flex flex-col items-center" data-index="2">
+<img alt="Hero Watch" class="w-[550px] h-auto drop-shadow-[0_35px_60px_rgba(0,0,0,0.8)] transition-transform duration-500 hover:scale-105" data-alt="Frontal hero shot of a world-class luxury watch with gold casing and sapphire crystal reflecting warm champagne light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoUU1mW74cjVpr1g-wLE8ZxUtOpB9ZeDWqy42U_iZs1Hzxx-Bf272E2GEm3OeGcCabteCQa81GJt_scBX9OcvClYU2XsNzbv8LMaaQiFdoFYBBMr00sSUWL56dUUZyvI7zNXDaLB37Rx3ewnTSHsRDr5934F-o_5prp5F_txn-TrulrtsROaHhI59VO32ZH6sNqu3T00v-H8NVmHuTm5k9LPhRRLiM4qRxswJdfKXGta7IFPR2lH8YiJfRnJF_BteTv0yey0i1AYc9"/>
+<!-- Floating Tooltip -->
+<div class="tooltip-glass absolute bottom-[-40px] px-8 py-4 bg-surface-variant/60 backdrop-blur-2xl rounded-xl border border-outline-variant/20 shadow-2xl flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-headline text-lg tracking-tight text-on-surface">El reloj de los millonarios</span>
+</div>
+</div>
+</div>
+<!-- Asymmetric Editorial Content -->
+<div class="absolute left-16 bottom-20 max-w-md pointer-events-none">
+<h2 class="font-headline text-7xl text-primary font-bold leading-none tracking-tighter mix-blend-lighten opacity-80">
+                THE<br/>GRAND<br/>MASTERY
+            </h2>
+<div class="mt-8 flex items-center gap-4">
+<div class="w-12 h-[1px] bg-primary"></div>
+<p class="font-body text-xs uppercase tracking-[0.3em] text-on-surface-variant">Colección Exclusiva 2024</p>
+</div>
+</div>
+<div class="absolute right-16 top-1/2 -translate-y-1/2 flex flex-col gap-12 text-right">
+<div>
+<p class="font-body text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Movimiento</p>
+<p class="font-headline text-2xl text-on-surface">Calibre 324 S C</p>
+</div>
+<div>
+<p class="font-body text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Material</p>
+<p class="font-headline text-2xl text-on-surface">Oro Rosa 18k</p>
+</div>
+<div>
+<p class="font-body text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">Reserva</p>
+<p class="font-headline text-2xl text-on-surface">45 Horas</p>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<footer class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-6 pb-8 pt-4 bg-[#131313]/80 backdrop-blur-2xl rounded-t-xl border-t border-[#353534]/30 shadow-[0_-10px_40px_rgba(0,0,0,0.6)] font-['Inter'] text-[10px] uppercase tracking-widest transition-all duration-500 ease-out">
+<a class="flex flex-col items-center justify-center text-[#f2ca50] scale-110" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="explore">explore</span>
+<span>Explorar</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#e5e2e1]/40 hover:text-[#f2ca50]/80 transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="watch">watch</span>
+<span>Colección</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#e5e2e1]/40 hover:text-[#f2ca50]/80 transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="favorite">favorite</span>
+<span>Deseados</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#e5e2e1]/40 hover:text-[#f2ca50]/80 transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="chat">chat</span>
+<span>Contacto</span>
+</a>
+</footer>
+<script>
+    const container = document.querySelector('.watch-carousel-container');
+    const watches = Array.from(document.querySelectorAll('.watch-item'));
+    const bg = document.querySelector('.bg-dynamic');
+    const infoLines = document.querySelectorAll('.absolute.right-16 p.font-headline');
+    
+    let activeIndex = 2;
+    let isScrolling = false;
+
+    const watchData = [
+        { mov: "Calibre 240 HU", mat: "Acero Noble", res: "48 Horas", grad: "from-surface-container-lowest via-surface-dim to-[#1a2420]" },
+        { mov: "Calibre 31-260", mat: "Platino 950", res: "38 Horas", grad: "from-surface-container-lowest via-surface-dim to-[#1a1c24]" },
+        { mov: "Calibre 324 S C", mat: "Oro Rosa 18k", res: "45 Horas", grad: "from-surface-container-lowest via-surface-dim to-[#241a00]" },
+        { mov: "CH 28-520 C", mat: "Oro Blanco", res: "55 Horas", grad: "from-surface-container-lowest via-surface-dim to-[#241a24]" },
+        { mov: "Calibre R 27", mat: "Titanio", res: "40 Horas", grad: "from-surface-container-lowest via-surface-dim to-[#242424]" }
+    ];
+
+    const positions = ['left-far', 'left-mid', 'central-watch', 'right-mid', 'right-far'];
+
+    function updateCarousel() {
+        watches.forEach((watch, i) => {
+            // Calculate relative position index
+            let posIndex = (i - activeIndex + 2 + 5) % 5;
+            watch.className = 'watch-item ' + positions[posIndex];
+        });
+
+        // Update background and info
+        const data = watchData[activeIndex];
+        bg.className = 'bg-dynamic fixed inset-0 -z-10 bg-gradient-to-br transition-all duration-1000 ' + data.grad;
+        infoLines[0].textContent = data.mov;
+        infoLines[1].textContent = data.mat;
+        infoLines[2].textContent = data.res;
+    }
+
+    window.addEventListener('wheel', (e) => {
+        if (isScrolling) return;
+        
+        if (e.deltaY > 0 && activeIndex < 4) {
+            activeIndex++;
+            isScrolling = true;
+            updateCarousel();
+        } else if (e.deltaY < 0 && activeIndex > 0) {
+            activeIndex--;
+            isScrolling = true;
+            updateCarousel();
+        }
+
+        setTimeout(() => { isScrolling = false; }, 800);
+    });
+
+    // Click to focus
+    watches.forEach((watch, i) => {
+        watch.addEventListener('click', () => {
+            activeIndex = i;
+            updateCarousel();
+        });
+    });
+</script>
+</body></html>

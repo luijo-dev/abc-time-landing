@@ -1,66 +1,101 @@
 ---
-import SpecPanel from '../components/vitrine/SpecPanel.astro';
-import VitrineBackground from '../components/vitrine/VitrineBackground.astro';
-import VitrineCTA from '../components/vitrine/VitrineCTA.astro';
-import VitrineHeader from '../components/vitrine/VitrineHeader.astro';
-import WatchCarousel from '../components/vitrine/WatchCarousel.astro';
+import type { FeaturedWatch, HeroContent } from '../types/homepage';
+import VitrineStage from '../components/vitrine/VitrineStage.astro';
 import Base from '../layouts/Base.astro';
 
-interface WatchSpec {
-  icon: string;
-  label: string;
-  value: string;
-}
+const heroContent: HeroContent = {
+  eyebrow: 'Curaduría privada',
+  title: 'Piezas que hablan con precisión, materia y presencia.',
+  intro: 'Una selección contenida de referencias icónicas para conversaciones serias, guiadas por disponibilidad y criterio.',
+  tooltip: 'Cada pieza es evaluada por nuestro equipo antes de ser presentada.',
+};
 
-interface Watch {
-  id: string;
-  name: string;
-  collection: string;
-  imageSrc?: string;
-  imageAlt: string;
-  specs: [WatchSpec, WatchSpec, WatchSpec];
-  ctaUrl: string;
-}
-
-const watches: Watch[] = [
+const featuredWatches: FeaturedWatch[] = [
   {
     id: 'daytona',
     name: 'Daytona',
     collection: 'Cosmograph',
-    imageSrc: '/images/watches/daytona.webp',
-    imageAlt: 'Rolex Cosmograph Daytona en fondo oscuro editorial',
+    image: {
+      src: '/images/watches/daytona.webp',
+      alt: 'Rolex Cosmograph Daytona en fondo oscuro editorial',
+      priority: true,
+    },
     specs: [
-      { icon: '⚙️', label: 'Movimiento', value: 'Automático Cal. 4131' },
-      { icon: '◈', label: 'Material', value: 'Oro Everose 18k' },
-      { icon: '◷', label: 'Reserva', value: '72 horas' },
+      { label: 'Movimiento', value: 'Automático Cal. 4131' },
+      { label: 'Material', value: 'Oro Everose 18k' },
+      { label: 'Reserva', value: '72 horas' },
     ],
     ctaUrl: 'https://wa.me/5490000000000?text=Hola%2C%20quiero%20consultar%20por%20el%20Cosmograph%20Daytona',
+    ctaLabel: 'Hablar por WhatsApp sobre Daytona',
+    mood: 'gold',
   },
   {
     id: 'royal-oak',
     name: 'Royal Oak',
     collection: 'Audemars Piguet',
-    imageSrc: '/images/watches/royal-oak.webp',
-    imageAlt: 'Audemars Piguet Royal Oak con iluminación de vitrina premium',
+    image: {
+      src: '/images/watches/royal-oak.webp',
+      alt: 'Audemars Piguet Royal Oak con iluminación de vitrina premium',
+    },
     specs: [
-      { icon: '⚙️', label: 'Movimiento', value: 'Automático Cal. 4302' },
-      { icon: '◈', label: 'Material', value: 'Acero satinado' },
-      { icon: '◷', label: 'Reserva', value: '70 horas' },
+      { label: 'Movimiento', value: 'Automático Cal. 4302' },
+      { label: 'Material', value: 'Acero satinado' },
+      { label: 'Reserva', value: '70 horas' },
     ],
     ctaUrl: 'https://wa.me/5490000000000?text=Hola%2C%20quiero%20consultar%20por%20el%20Royal%20Oak',
+    ctaLabel: 'Hablar por WhatsApp sobre Royal Oak',
+    mood: 'smoke',
   },
   {
     id: 'submariner',
     name: 'Submariner',
     collection: 'Oyster Perpetual',
-    imageSrc: '/images/watches/submariner.webp',
-    imageAlt: 'Rolex Submariner en composición oscura con brillo cálido',
+    image: {
+      src: '/images/watches/submariner.webp',
+      alt: 'Rolex Submariner en composición oscura con brillo cálido',
+    },
     specs: [
-      { icon: '⚙️', label: 'Movimiento', value: 'Automático Cal. 3235' },
-      { icon: '◈', label: 'Material', value: 'Oystersteel' },
-      { icon: '◷', label: 'Reserva', value: '70 horas' },
+      { label: 'Movimiento', value: 'Automático Cal. 3235' },
+      { label: 'Material', value: 'Oystersteel' },
+      { label: 'Reserva', value: '70 horas' },
     ],
     ctaUrl: 'https://wa.me/5490000000000?text=Hola%2C%20quiero%20consultar%20por%20el%20Submariner',
+    ctaLabel: 'Hablar por WhatsApp sobre Submariner',
+    mood: 'smoke',
+  },
+  {
+    id: 'nautilus',
+    name: 'Nautilus',
+    collection: 'Patek Philippe',
+    image: {
+      src: '/images/watches/nautilus.webp',
+      alt: 'Patek Philippe Nautilus en composición editorial oscura',
+    },
+    specs: [
+      { label: 'Movimiento', value: 'Automático Cal. 26-330' },
+      { label: 'Material', value: 'Acero pulido' },
+      { label: 'Reserva', value: '45 horas' },
+    ],
+    ctaUrl: 'https://wa.me/5490000000000?text=Hola%2C%20quiero%20consultar%20por%20el%20Nautilus',
+    ctaLabel: 'Hablar por WhatsApp sobre Nautilus',
+    mood: 'gold',
+  },
+  {
+    id: 'speedmaster',
+    name: 'Speedmaster',
+    collection: 'Omega',
+    image: {
+      src: '/images/watches/speedmaster.webp',
+      alt: 'Omega Speedmaster Moonwatch en iluminación de estudio premium',
+    },
+    specs: [
+      { label: 'Movimiento', value: 'Manual Cal. 3861' },
+      { label: 'Material', value: 'Acero cepillado' },
+      { label: 'Reserva', value: '50 horas' },
+    ],
+    ctaUrl: 'https://wa.me/5490000000000?text=Hola%2C%20quiero%20consultar%20por%20el%20Speedmaster',
+    ctaLabel: 'Hablar por WhatsApp sobre Speedmaster',
+    mood: 'smoke',
   },
 ];
 ---
@@ -69,128 +104,5 @@ const watches: Watch[] = [
   title="AVC TIME | Vitrina de alta relojería"
   description="Una vitrina editorial de alta relojería para descubrir piezas icónicas y continuar la conversación por WhatsApp."
 >
-  <VitrineBackground />
-  <div class="vitrine-shell">
-    <VitrineHeader />
-
-    <main class="page-shell vitrine-content">
-      <section class="vitrine-stage" aria-labelledby="vitrine-heading">
-        <div class="vitrine-copy">
-          <p class="vitrine-copy__eyebrow">Curaduría privada</p>
-          <h1 id="vitrine-heading">Piezas que hablan con precisión, materia y presencia.</h1>
-          <p>
-            Una selección contenida de referencias icónicas para conversaciones serias, guiadas por
-            disponibilidad y criterio.
-          </p>
-        </div>
-
-        <WatchCarousel items={watches} />
-      </section>
-
-      <aside class="vitrine-details" aria-label="Detalles del reloj activo">
-        <div class="vitrine-panels">
-          {watches.map((watch, index) => (
-            <SpecPanel specs={watch.specs} index={index} isActive={index === 0} />
-          ))}
-        </div>
-
-        <VitrineCTA href={watches[0].ctaUrl} text="Consultar disponibilidad" />
-      </aside>
-    </main>
-  </div>
-
-  <script is:inline>
-    document.body.dataset.vitrine = 'true';
-  </script>
+  <VitrineStage hero={heroContent} watches={featuredWatches} />
 </Base>
-
-<style>
-  .vitrine-shell {
-    min-height: 100vh;
-  }
-
-  .vitrine-content {
-    display: grid;
-    gap: var(--space-32);
-    padding-block: var(--space-32) var(--space-64);
-  }
-
-  .vitrine-stage,
-  .vitrine-details {
-    display: grid;
-    gap: var(--space-24);
-    align-content: start;
-  }
-
-  .vitrine-copy {
-    display: grid;
-    gap: var(--space-12);
-    max-width: 34rem;
-    padding-inline: var(--space-16);
-  }
-
-  .vitrine-copy__eyebrow {
-    color: var(--color-on-surface-variant);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: var(--letter-spacing-label);
-    text-transform: uppercase;
-  }
-
-  h1 {
-    font-family: var(--font-display);
-    font-size: clamp(2.5rem, 8vw, 4.75rem);
-    font-weight: 600;
-    letter-spacing: var(--letter-spacing-display);
-    line-height: var(--line-height-tight);
-    text-wrap: balance;
-  }
-
-  .vitrine-copy p:last-child {
-    color: var(--color-on-surface-variant);
-    max-width: 56ch;
-  }
-
-  .vitrine-panels {
-    display: grid;
-  }
-
-  @media (min-width: 720px) {
-    .vitrine-content {
-      gap: var(--space-48);
-      padding-top: var(--space-48);
-    }
-
-    .vitrine-copy {
-      padding-inline: 0;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .vitrine-content {
-      grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 1fr);
-      align-items: start;
-      gap: var(--space-48);
-      padding-top: var(--space-64);
-    }
-
-    .vitrine-stage {
-      gap: var(--space-32);
-    }
-
-    .vitrine-details {
-      position: sticky;
-      top: calc(var(--space-64) + 5rem);
-      gap: var(--space-32);
-      padding-top: var(--space-32);
-    }
-  }
-
-  @media (max-width: 719px) {
-    .vitrine-content {
-      width: min(100%, calc(100% - (var(--space-16) * 2)));
-      gap: var(--space-24);
-      padding-block: var(--space-24) var(--space-48);
-    }
-  }
-</style>

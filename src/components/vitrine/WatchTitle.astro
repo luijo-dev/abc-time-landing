@@ -6,8 +6,11 @@ interface Props {
 ---
 
 <div class="watch-title">
-  <span class="watch-title__collection">{Astro.props.collection}</span>
-  <h2 class="watch-title__name">{Astro.props.name}</h2>
+  <h2 id="vitrine-heading" class="watch-title__name" data-watch-stage-name>{Astro.props.name}</h2>
+  <p class="watch-title__collection">
+    <span class="watch-title__collection-line" aria-hidden="true"></span>
+    <span data-watch-stage-collection>{Astro.props.collection}</span>
+  </p>
 </div>
 
 <style>
@@ -18,22 +21,33 @@ interface Props {
   }
 
   .watch-title__collection {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-12);
     color: var(--color-on-surface-variant);
     font-family: var(--font-body);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: var(--letter-spacing-label);
-    line-height: 1.2;
-    text-transform: uppercase;
+    font-size: var(--text-body-md);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  .watch-title__collection-line {
+    width: 2.75rem;
+    min-width: 2.75rem;
+    height: 1px;
+    background: rgb(var(--color-outline-variant-rgb) / 0.45);
   }
 
   .watch-title__name {
-    color: var(--color-on-surface);
+    color: var(--color-primary);
     font-family: var(--font-display);
-    font-size: clamp(2rem, 5vw, var(--text-display-lg));
+    font-size: clamp(2.125rem, 4vw, 3rem);
     font-weight: 600;
     letter-spacing: var(--letter-spacing-display);
     line-height: var(--line-height-tight);
     text-wrap: balance;
+    margin: 0;
   }
 </style>

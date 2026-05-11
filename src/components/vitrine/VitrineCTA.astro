@@ -3,19 +3,21 @@ interface Props {
   href: string;
   text?: string;
 }
+
+const { href, text = 'Hablar por WhatsApp' } = Astro.props;
 ---
 
 <div class="vitrine-cta" data-vitrine-cta>
-  <span class="vitrine-cta__eyebrow">Atención privada</span>
+  <span class="vitrine-cta__eyebrow">Concierge por WhatsApp</span>
   <a
     class="vitrine-cta__action"
     data-vitrine-cta-link
-    href={Astro.props.href}
+    href={href}
     target="_blank"
     rel="noreferrer"
-    aria-label="Consultar con concierge por WhatsApp"
+    aria-label={text}
   >
-    <span>{Astro.props.text ?? "Consultar con concierge"}</span>
+    <span data-vitrine-cta-copy>{text}</span>
     <span class="vitrine-cta__arrow" aria-hidden="true">↗</span>
   </a>
 </div>

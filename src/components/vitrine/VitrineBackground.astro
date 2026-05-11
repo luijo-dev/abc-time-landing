@@ -1,4 +1,16 @@
-<div class="vitrine-background" aria-hidden="true"></div>
+---
+interface Props {
+  mood?: 'gold' | 'smoke';
+}
+
+const { mood } = Astro.props;
+---
+
+<div
+  class:list={['vitrine-background', { [`vitrine-background--${mood}`]: mood }]}
+  data-vitrine-background
+  aria-hidden="true"
+></div>
 
 <style>
   .vitrine-background {
@@ -12,6 +24,7 @@
       var(--vitrine-gradient-warm) 72%,
       var(--vitrine-gold-whisper) 100%
     );
+    transition: background var(--transition-precision);
   }
 
   .vitrine-background::after {
@@ -23,4 +36,44 @@
       radial-gradient(ellipse at center, transparent 24%, var(--vitrine-smoke) 100%);
     pointer-events: none;
   }
- </style>
+
+  /* Gold mood: warmer, more champagne glow */
+  .vitrine-background--gold {
+    background: linear-gradient(
+      135deg,
+      var(--vitrine-gradient-start) 0%,
+      var(--color-background) 30%,
+      rgb(212 175 55 / 0.08) 60%,
+      var(--vitrine-gold-whisper) 100%
+    );
+  }
+
+  .vitrine-background--gold::after {
+    background:
+      radial-gradient(circle at top left, rgb(212 175 55 / 0.14), transparent 40%),
+      radial-gradient(ellipse at center, transparent 20%, var(--vitrine-smoke) 100%);
+  }
+
+  /* Smoke mood: cooler, deeper charcoal atmosphere */
+  .vitrine-background--smoke {
+    background: linear-gradient(
+      135deg,
+      var(--vitrine-gradient-start) 0%,
+      var(--color-surface-lowest) 40%,
+      var(--color-surface-dim) 72%,
+      var(--vitrine-gradient-start) 100%
+    );
+  }
+
+  .vitrine-background--smoke::after {
+    background:
+      radial-gradient(circle at top left, rgb(141 131 100 / 0.06), transparent 34%),
+      radial-gradient(ellipse at center, transparent 28%, var(--vitrine-smoke) 100%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vitrine-background {
+      transition: none;
+    }
+  }
+</style>

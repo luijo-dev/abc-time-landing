@@ -1,0 +1,138 @@
+---
+import type { FeaturedWatch, HeroContent } from '../../types/homepage';
+import VitrineHeader from './VitrineHeader.astro';
+import VitrineBackground from './VitrineBackground.astro';
+import WatchCarousel from './WatchCarousel.astro';
+import WatchTitle from './WatchTitle.astro';
+import Tooltip from '../ui/Tooltip.astro';
+
+interface Props {
+  hero: HeroContent;
+  watches: FeaturedWatch[];
+}
+
+const { hero, watches } = Astro.props;
+const activeWatch = watches[0];
+---
+
+<VitrineBackground mood={activeWatch?.mood} />
+
+<div class="vitrine-shell">
+  <VitrineHeader />
+
+  <main class="vitrine-content">
+    <section class="vitrine-stage" aria-labelledby="vitrine-heading">
+      <div class="vitrine-stage__title" aria-live="polite">
+        <WatchTitle
+          name={activeWatch?.name ?? hero.title}
+          collection={activeWatch?.collection ?? hero.eyebrow}
+        />
+      </div>
+
+      <WatchCarousel items={watches} />
+
+      {hero.tooltip && (
+        <div class="vitrine-stage__tooltip">
+          <Tooltip text={hero.tooltip} position="right">
+            <button
+              type="button"
+              class="vitrine-stage__tooltip-hint"
+              aria-label="Más información sobre la curaduría"
+            >
+              ?
+            </button>
+          </Tooltip>
+        </div>
+      )}
+    </section>
+  </main>
+</div>
+
+<script is:inline>
+  document.body.dataset.vitrine = 'true';
+</script>
+
+<style>
+  .vitrine-shell {
+    min-height: 100vh;
+  }
+
+  .vitrine-content {
+    display: grid;
+    gap: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .vitrine-stage {
+    display: grid;
+    gap: var(--space-24);
+    align-content: start;
+    position: relative;
+    min-height: calc(100vh - 4.5rem);
+  }
+
+  .vitrine-stage__title {
+    position: absolute;
+    left: var(--space-16);
+    bottom: var(--space-16);
+    z-index: 10;
+    max-width: min(28rem, calc(100% - (var(--space-16) * 2)));
+    pointer-events: none;
+  }
+
+  .vitrine-stage__tooltip {
+    position: absolute;
+    right: var(--space-16);
+    bottom: var(--space-24);
+    z-index: 10;
+  }
+
+  .vitrine-stage__tooltip-hint {
+    display: inline-grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    appearance: none;
+    border-radius: 999px;
+    border: 1px solid rgb(var(--color-outline-variant-rgb) / 0.2);
+    background: rgb(var(--color-surface-variant-rgb) / 0.6);
+    color: var(--color-on-surface-variant);
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .vitrine-stage__tooltip-hint:focus-visible {
+    outline: 2px solid rgb(var(--color-primary-rgb) / 0.75);
+    outline-offset: 2px;
+  }
+
+  @media (min-width: 720px) {
+    .vitrine-stage__title {
+      left: var(--space-16);
+      bottom: var(--space-24);
+      max-width: 32rem;
+    }
+
+    .vitrine-stage__tooltip {
+      right: 0;
+      bottom: var(--space-32);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .vitrine-stage {
+      gap: var(--space-32);
+    }
+  }
+
+  @media (max-width: 719px) {
+    .vitrine-stage {
+      min-height: calc(100vh - 4rem);
+    }
+  }
+</style>

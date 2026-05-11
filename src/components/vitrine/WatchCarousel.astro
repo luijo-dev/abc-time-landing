@@ -1,53 +1,104 @@
 ---
+import type { FeaturedWatch } from '../../types/homepage';
 import WatchCarouselItem from './WatchCarouselItem.astro';
 import WatchImage from './WatchImage.astro';
 
-interface Watch {
-  id: string;
-  name: string;
-  collection: string;
-  imageSrc?: string;
-  imageAlt: string;
-  specs: Array<{
-    icon: string;
-    label: string;
-    value: string;
-  }>;
-  ctaUrl: string;
-}
-
 interface Props {
-  items: Watch[];
+  items: FeaturedWatch[];
 }
 
 const { items } = Astro.props;
 ---
 
-<section class="watch-carousel" data-carousel data-active-index="0" aria-label="Vitrina principal de relojes">
-  <div class="watch-carousel__track" data-carousel-track role="listbox" aria-label="Selección de relojes destacados">
+<section
+  class="watch-carousel"
+  data-carousel
+  data-active-index="0"
+  aria-label="Vitrina principal de relojes"
+>
+  <div
+    class="watch-carousel__track"
+    data-carousel-track
+    role="listbox"
+    aria-label="Selección de relojes destacados"
+  >
     {items.map((item, index) => (
-      <WatchCarouselItem item={item} index={index} isActive={index === 0}>
-        <WatchImage src={item.imageSrc} alt={item.imageAlt} />
+      <WatchCarouselItem
+        item={item}
+        index={index}
+        isActive={index === 0}
+      >
+        <WatchImage
+          src={item.image?.src}
+          alt={item.image?.alt ?? `${item.collection} ${item.name}`}
+          priority={item.image?.priority}
+        />
       </WatchCarouselItem>
     ))}
+  </div>
+
+  <div class="watch-carousel__controls" aria-label="Navegación del carrusel">
+    <button
+      type="button"
+      class="watch-carousel__nav-btn"
+      data-carousel-prev
+      aria-label="Reloj anterior"
+    >
+      <span aria-hidden="true">←</span>
+    </button>
+    <div class="watch-carousel__indicators" role="tablist" aria-label="Seleccionar reloj">
+      {items.map((_, index) => (
+        <button
+          type="button"
+          class:list={['watch-carousel__indicator', { 'is-active': index === 0 }]}
+          data-carousel-indicator={index}
+          role="tab"
+          aria-selected={index === 0 ? 'true' : 'false'}
+          aria-label={`Reloj ${index + 1}`}
+        />
+      ))}
+    </div>
+    <button
+      type="button"
+      class="watch-carousel__nav-btn"
+      data-carousel-next
+      aria-label="Siguiente reloj"
+    >
+      <span aria-hidden="true">→</span>
+    </button>
   </div>
 </section>
 
 <script is:inline>
-  const carouselRoot = document.currentScript?.previousElementSibling;
+  const carouselRoot = document.currentScript?.previousElementSibling?.parentElement?.querySelector('[data-carousel]');
 
   if (carouselRoot instanceof HTMLElement) {
+    const vitrineScope = carouselRoot.closest('.vitrine-shell') ?? document;
     const items = Array.from(carouselRoot.querySelectorAll('[data-carousel-item]'));
-    const specPanels = Array.from(document.querySelectorAll('[data-spec-panel]'));
-    const ctaLink = document.querySelector('[data-vitrine-cta-link]');
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const specPanels = Array.from(vitrineScope.querySelectorAll('[data-spec-panel]'));
+    const ctaLink = vitrineScope.querySelector('[data-vitrine-cta-link]');
+    const ctaCopy = vitrineScope.querySelector('[data-vitrine-cta-copy]');
+    const stageName = vitrineScope.querySelector('[data-watch-stage-name]');
+    const stageCollection = vitrineScope.querySelector('[data-watch-stage-collection]');
+    const headerCta = vitrineScope.querySelector('[data-header-cta]');
+    const indicators = Array.from(carouselRoot.querySelectorAll('[data-carousel-indicator]'));
+    const prevBtn = carouselRoot.querySelector('[data-carousel-prev]');
+    const nextBtn = carouselRoot.querySelector('[data-carousel-next]');
+    const background = vitrineScope.querySelector('[data-vitrine-background]');
+    const totalItems = items.length;
 
     const setActive = (rawIndex, shouldFocus = false) => {
-      const nextIndex = (rawIndex + items.length) % items.length;
+      const nextIndex = ((rawIndex % totalItems) + totalItems) % totalItems;
 
       items.forEach((item, index) => {
         const isActive = index === nextIndex;
+        const distance = Math.abs(index - nextIndex);
+        const isAdjacent = distance === 1 || distance === totalItems - 1;
+        const isBackground = distance >= 2;
+
         item.classList.toggle('is-active', isActive);
+        item.classList.toggle('is-adjacent', isAdjacent && !isActive);
+        item.classList.toggle('is-background', isBackground);
         item.setAttribute('aria-selected', String(isActive));
         if (isActive) {
           item.setAttribute('aria-current', 'true');
@@ -63,32 +114,73 @@ const { items } = Astro.props;
         panel.setAttribute('aria-hidden', String(!isActive));
       });
 
+      indicators.forEach((dot, index) => {
+        dot.classList.toggle('is-active', index === nextIndex);
+        dot.setAttribute('aria-selected', String(index === nextIndex));
+      });
+
       const activeItem = items[nextIndex];
       if (ctaLink instanceof HTMLAnchorElement && activeItem instanceof HTMLElement) {
         ctaLink.href = activeItem.dataset.ctaUrl ?? ctaLink.href;
-        ctaLink.setAttribute('aria-label', `${activeItem.getAttribute('aria-label') ?? 'Consultar'} por WhatsApp`);
+        if (ctaCopy instanceof HTMLElement) {
+          ctaCopy.textContent = activeItem.dataset.ctaLabel ?? 'Hablar por WhatsApp';
+        }
+        const watchName = activeItem.dataset.watchName ?? '';
+        const watchCollection = activeItem.dataset.watchCollection ?? '';
+        ctaLink.setAttribute('aria-label', `Hablar por WhatsApp sobre ${watchCollection} ${watchName}`);
+      }
+
+      if (activeItem instanceof HTMLElement) {
+        if (stageName instanceof HTMLElement) {
+          stageName.textContent = activeItem.dataset.watchName ?? '';
+        }
+
+        if (stageCollection instanceof HTMLElement) {
+          stageCollection.textContent = activeItem.dataset.watchCollection ?? '';
+        }
+      }
+
+      // Update header CTA
+      if (headerCta instanceof HTMLAnchorElement && activeItem instanceof HTMLElement) {
+        headerCta.href = activeItem.dataset.ctaUrl ?? headerCta.href;
+      }
+
+      // Update background mood
+      if (background instanceof HTMLElement && activeItem instanceof HTMLElement) {
+        const mood = activeItem.dataset.mood;
+        background.className = 'vitrine-background';
+        if (mood) {
+          background.classList.add(`vitrine-background--${mood}`);
+        }
       }
 
       carouselRoot.dataset.activeIndex = String(nextIndex);
-      activeItem?.scrollIntoView({
-        behavior: reducedMotion ? 'auto' : 'smooth',
-        block: 'nearest',
-        inline: 'center',
-      });
 
       if (shouldFocus) {
         activeItem?.focus();
       }
     };
 
+    // Click on items
     items.forEach((item, index) => {
       item.addEventListener('click', () => setActive(index));
       item.addEventListener('keydown', (event) => {
-        if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
           event.preventDefault();
-          setActive(index + (event.key === 'ArrowRight' ? 1 : -1), true);
+          setActive(index + 1, true);
         }
-
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          setActive(index - 1, true);
+        }
+        if (event.key === 'Home') {
+          event.preventDefault();
+          setActive(0, true);
+        }
+        if (event.key === 'End') {
+          event.preventDefault();
+          setActive(totalItems - 1, true);
+        }
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
           setActive(index, true);
@@ -96,6 +188,27 @@ const { items } = Astro.props;
       });
     });
 
+    // Previous / Next buttons
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        const current = Number(carouselRoot.dataset.activeIndex ?? '0');
+        setActive(current - 1, true);
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        const current = Number(carouselRoot.dataset.activeIndex ?? '0');
+        setActive(current + 1, true);
+      });
+    }
+
+    // Indicator dots
+    indicators.forEach((dot, index) => {
+      dot.addEventListener('click', () => setActive(index, true));
+    });
+
+    // Initialize
     setActive(Number(carouselRoot.dataset.activeIndex ?? '0'));
   }
 </script>
@@ -106,25 +219,86 @@ const { items } = Astro.props;
   }
 
   .watch-carousel__track {
-    display: flex;
-    gap: var(--space-16);
-    align-items: stretch;
-    overflow-x: auto;
-    padding: var(--space-16) calc((100% - var(--vitrine-carousel-item-mobile)) / 2);
-    scroll-padding-inline: calc((100% - var(--vitrine-carousel-item-mobile)) / 2);
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
+    position: relative;
+    display: grid;
+    place-items: center;
+    padding: var(--space-16);
+    min-height: 24rem;
   }
 
-  .watch-carousel__track::-webkit-scrollbar {
-    display: none;
+  .watch-carousel__controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-16);
+    margin-top: var(--space-16);
+  }
+
+  .watch-carousel__nav-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid rgb(var(--color-outline-variant-rgb) / 0.2);
+    border-radius: 999px;
+    background: rgb(var(--color-surface-variant-rgb) / 0.6);
+    color: var(--color-on-surface-variant);
+    font-size: 1rem;
+    cursor: pointer;
+    transition:
+      color var(--transition-precision),
+      border-color var(--transition-precision),
+      background var(--transition-precision);
+  }
+
+  .watch-carousel__nav-btn:hover,
+  .watch-carousel__nav-btn:focus-visible {
+    color: var(--color-primary);
+    border-color: rgb(var(--color-primary-rgb) / 0.34);
+    background: rgb(var(--color-surface-variant-rgb) / 0.6);
+  }
+
+  .watch-carousel__indicators {
+    display: flex;
+    gap: var(--space-8);
+  }
+
+  .watch-carousel__indicator {
+    width: var(--space-8);
+    height: var(--space-8);
+    border-radius: 999px;
+    border: none;
+    background: rgb(var(--color-outline-variant-rgb) / 0.3);
+    cursor: pointer;
+    transition:
+      background var(--transition-precision),
+      transform var(--transition-precision);
+  }
+
+  .watch-carousel__indicator.is-active {
+    background: var(--color-primary);
+    transform: scale(1.25);
+  }
+
+  .watch-carousel__indicator:hover:not(.is-active) {
+    background: rgb(var(--color-outline-variant-rgb) / 0.6);
+  }
+
+  .watch-carousel__indicator:focus-visible {
+    outline: 2px solid rgb(var(--color-primary-rgb) / 0.75);
+    outline-offset: 2px;
   }
 
   @media (min-width: 1024px) {
     .watch-carousel__track {
       gap: var(--space-24);
-      padding-inline: calc((100% - var(--vitrine-carousel-item-desktop)) / 2);
-      scroll-padding-inline: calc((100% - var(--vitrine-carousel-item-desktop)) / 2);
+      min-height: 32rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .watch-carousel__indicator {
+      transition: none;
     }
   }
 </style>

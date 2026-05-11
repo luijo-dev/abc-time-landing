@@ -2,7 +2,6 @@
 import SpecItem from './SpecItem.astro';
 
 interface WatchSpec {
-  icon: string;
   label: string;
   value: string;
 }
@@ -21,9 +20,10 @@ const { specs, index = 0, isActive = false } = Astro.props;
   data-spec-panel
   data-spec-index={index}
   aria-hidden={isActive ? 'false' : 'true'}
+  aria-label={`Especificaciones del reloj ${index + 1}`}
 >
   {specs.map((spec) => (
-    <SpecItem icon={spec.icon} label={spec.label} value={spec.value} />
+    <SpecItem label={spec.label} value={spec.value} />
   ))}
 </article>
 
@@ -32,11 +32,11 @@ const { specs, index = 0, isActive = false } = Astro.props;
     display: grid;
     gap: var(--space-8);
     padding: var(--space-24);
-    border: 1px solid rgb(var(--color-outline-variant-rgb) / 0.14);
+    border: 1px solid rgb(var(--color-outline-variant-rgb) / 0.15);
     border-radius: calc(var(--radius-lg) + var(--space-4));
-    background: rgb(var(--color-surface-variant-rgb) / 0.32);
-    backdrop-filter: blur(calc(var(--blur-glass) * 0.5));
-    -webkit-backdrop-filter: blur(calc(var(--blur-glass) * 0.5));
+    background: rgb(var(--color-surface-variant-rgb) / 0.6);
+    backdrop-filter: blur(var(--blur-glass));
+    -webkit-backdrop-filter: blur(var(--blur-glass));
     box-shadow: var(--shadow-ambient);
   }
 
@@ -49,6 +49,12 @@ const { specs, index = 0, isActive = false } = Astro.props;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: var(--space-16);
       align-items: start;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .spec-panel {
+      gap: var(--space-12);
     }
   }
 </style>

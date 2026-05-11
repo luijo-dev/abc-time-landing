@@ -1,22 +1,8 @@
 ---
-import WatchTitle from './WatchTitle.astro';
-
-interface Watch {
-  id: string;
-  name: string;
-  collection: string;
-  imageSrc?: string;
-  imageAlt: string;
-  specs: Array<{
-    icon: string;
-    label: string;
-    value: string;
-  }>;
-  ctaUrl: string;
-}
+import type { FeaturedWatch } from '../../types/homepage';
 
 interface Props {
-  item: Watch;
+  item: FeaturedWatch;
   isActive?: boolean;
   index: number;
 }
@@ -26,10 +12,17 @@ const { item, isActive = false, index } = Astro.props;
 
 <button
   type="button"
-  class:list={['watch-carousel-item', { 'is-active': isActive }]}
+  class:list={[
+    'watch-carousel-item',
+    { 'is-active': isActive },
+  ]}
   data-carousel-item
   data-index={index}
   data-cta-url={item.ctaUrl}
+  data-cta-label={item.ctaLabel ?? 'Hablar por WhatsApp'}
+  data-watch-name={item.name}
+  data-watch-collection={item.collection}
+  data-mood={item.mood ?? ''}
   role="option"
   aria-label={`Ver ${item.collection} ${item.name}`}
   aria-selected={isActive ? 'true' : 'false'}
@@ -40,30 +33,33 @@ const { item, isActive = false, index } = Astro.props;
     <slot />
   </span>
 
-  <span class="watch-carousel-item__title">
-    <WatchTitle name={item.name} collection={item.collection} />
-  </span>
 </button>
 
 <style>
   .watch-carousel-item {
-    position: relative;
-    flex: 0 0 var(--vitrine-carousel-item-mobile);
-    scroll-snap-align: center;
+    position: absolute;
     display: grid;
     gap: var(--space-16);
-    width: 100%;
+    width: var(--vitrine-carousel-item-mobile);
+    max-width: 100%;
     padding: var(--space-16);
-    border: 1px solid rgb(var(--color-outline-variant-rgb) / 0.14);
+    border: 1px solid rgb(var(--color-outline-variant-rgb) / 0.15);
     border-radius: calc(var(--radius-lg) + var(--space-4));
-    background: linear-gradient(180deg, rgb(255 255 255 / 0.03), rgb(16 16 16 / 0.72));
-    box-shadow: 0 24px 60px rgb(var(--color-shadow-rgb) / 0.28);
+    background: linear-gradient(
+      180deg,
+      rgb(var(--color-surface-variant-rgb) / 0.6),
+      rgb(var(--color-shadow-rgb) / 0.72)
+    );
+    box-shadow: var(--shadow-ambient);
     color: inherit;
     cursor: pointer;
-    opacity: 0.6;
     overflow: hidden;
-    transform: scale(0.9) translateY(var(--space-8));
-    filter: saturate(0.3);
+    /* Spatial staging defaults: background state */
+    opacity: 0.4;
+    transform: scale(0.78) translateY(var(--space-12));
+    filter: saturate(0.2) blur(1px);
+    z-index: 1;
+    grid-area: 1 / 1;
     transition:
       transform var(--transition-precision),
       opacity var(--transition-precision),
@@ -77,63 +73,76 @@ const { item, isActive = false, index } = Astro.props;
     position: absolute;
     inset: auto 12% 0;
     height: 32%;
-    background: linear-gradient(180deg, transparent, rgb(0 0 0 / 0.72));
+    background: linear-gradient(180deg, transparent, rgb(var(--color-shadow-rgb) / 0.72));
     pointer-events: none;
   }
 
-  .watch-carousel-item:hover {
-    border-color: rgb(var(--color-outline-variant-rgb) / 0.24);
+  /* Adjacent watches: midground depth */
+  .watch-carousel-item.is-adjacent {
+    opacity: 0.65;
+    transform: scale(0.88) translateY(var(--space-4));
+    filter: saturate(0.5);
+    z-index: 2;
+    border-color: rgb(var(--color-outline-variant-rgb) / 0.2);
+  }
+
+  /* Hover on any state */
+  .watch-carousel-item:hover:not(.is-active) {
+    border-color: rgb(var(--color-outline-variant-rgb) / 0.2);
     opacity: 0.78;
     filter: saturate(0.65);
   }
 
+  /* Active watch: foreground emphasis */
   .watch-carousel-item.is-active {
     opacity: 1;
     transform: scale(1) translateY(0);
     filter: saturate(1);
-    border-color: rgb(242 202 80 / 0.34);
+    z-index: 5;
+    border-color: rgb(var(--color-primary-rgb) / 0.34);
     box-shadow:
-      0 30px 72px rgb(var(--color-shadow-rgb) / 0.4),
-      inset 0 0 0 1px rgb(242 202 80 / 0.12);
+      var(--shadow-ambient),
+      inset 0 0 0 1px rgb(var(--color-primary-rgb) / 0.12);
   }
 
   .watch-carousel-item:focus-visible {
-    outline: 2px solid rgb(242 202 80 / 0.75);
+    outline: 2px solid rgb(var(--color-primary-rgb) / 0.75);
     outline-offset: 4px;
   }
 
-  .watch-carousel-item__media,
-  .watch-carousel-item__title {
+  .watch-carousel-item__media {
     position: relative;
     z-index: 1;
-  }
-
-  .watch-carousel-item__title {
-    position: absolute;
-    right: var(--space-16);
-    bottom: var(--space-16);
-    left: var(--space-16);
-    padding-top: var(--space-32);
   }
 
   @media (min-width: 1024px) {
     .watch-carousel-item {
       flex-basis: var(--vitrine-carousel-item-desktop);
+      width: var(--vitrine-carousel-item-desktop);
       padding: var(--space-24);
-    }
-
-    .watch-carousel-item__title {
-      right: var(--space-24);
-      bottom: var(--space-24);
-      left: var(--space-24);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .watch-carousel-item,
     .watch-carousel-item:hover,
-    .watch-carousel-item.is-active {
+    .watch-carousel-item.is-active,
+    .watch-carousel-item.is-adjacent {
       transform: none;
+      filter: none;
+      transition-duration: 0s;
+    }
+
+    .watch-carousel-item {
+      opacity: 0.5;
+    }
+
+    .watch-carousel-item.is-adjacent {
+      opacity: 0.7;
+    }
+
+    .watch-carousel-item.is-active {
+      opacity: 1;
     }
   }
 </style>
