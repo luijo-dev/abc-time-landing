@@ -50,6 +50,8 @@ body {
 
 body[data-vitrine='true'] {
   background: var(--color-surface-lowest);
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 img,

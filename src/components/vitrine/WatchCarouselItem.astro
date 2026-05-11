@@ -37,72 +37,63 @@ const { item, isActive = false, index } = Astro.props;
 
 <style>
   .watch-carousel-item {
+    --item-padding: var(--space-8);
+    --watch-shell-height: var(--watch-shell-height-far);
+    --watch-shell-width: var(--watch-shell-width-far);
+    --watch-media-height: calc(var(--watch-shell-height) - (var(--item-padding) * 2));
+    --watch-media-width: calc(var(--watch-shell-width) - (var(--item-padding) * 1.2));
     position: absolute;
     display: grid;
     gap: var(--space-16);
-    width: var(--vitrine-carousel-item-mobile);
+    width: min(var(--vitrine-carousel-item-mobile), var(--watch-shell-width));
     max-width: 100%;
-    padding: var(--space-16);
-    border: 1px solid rgb(var(--color-outline-variant-rgb) / 0.15);
+    height: min(var(--watch-shell-height), var(--carousel-stage-height));
+    max-height: var(--carousel-stage-height);
+    padding: var(--item-padding);
+    border: none;
     border-radius: calc(var(--radius-lg) + var(--space-4));
-    background: linear-gradient(
-      180deg,
-      rgb(var(--color-surface-variant-rgb) / 0.6),
-      rgb(var(--color-shadow-rgb) / 0.72)
-    );
-    box-shadow: var(--shadow-ambient);
+    background: transparent;
+    box-shadow: none;
     color: inherit;
     cursor: pointer;
-    overflow: hidden;
-    /* Spatial staging defaults: background state */
-    opacity: 0.4;
-    transform: scale(0.78) translateY(var(--space-12));
-    filter: saturate(0.2) blur(1px);
+    overflow: visible;
+    opacity: 0.46;
+    transform: translate3d(calc(var(--slot-offset-far) * -1), var(--slot-drop-far), 0) scale(0.84);
+    filter: saturate(0.42) blur(0.18px);
     z-index: 1;
     grid-area: 1 / 1;
     transition:
       transform var(--transition-precision),
       opacity var(--transition-precision),
       filter var(--transition-precision),
-      box-shadow var(--transition-precision),
-      border-color var(--transition-precision);
-  }
-
-  .watch-carousel-item::after {
-    content: '';
-    position: absolute;
-    inset: auto 12% 0;
-    height: 32%;
-    background: linear-gradient(180deg, transparent, rgb(var(--color-shadow-rgb) / 0.72));
-    pointer-events: none;
+      box-shadow var(--transition-precision);
   }
 
   /* Adjacent watches: midground depth */
   .watch-carousel-item.is-adjacent {
-    opacity: 0.65;
-    transform: scale(0.88) translateY(var(--space-4));
-    filter: saturate(0.5);
+    --watch-shell-height: var(--watch-shell-height-adjacent);
+    --watch-shell-width: var(--watch-shell-width-adjacent);
+    opacity: 0.82;
+    filter: saturate(0.7);
     z-index: 2;
-    border-color: rgb(var(--color-outline-variant-rgb) / 0.2);
   }
 
   /* Hover on any state */
   .watch-carousel-item:hover:not(.is-active) {
-    border-color: rgb(var(--color-outline-variant-rgb) / 0.2);
-    opacity: 0.78;
-    filter: saturate(0.65);
+    opacity: 0.82;
+    filter: saturate(0.72);
+    box-shadow: none;
+    outline: none;
   }
 
   /* Active watch: foreground emphasis */
   .watch-carousel-item.is-active {
+    --watch-shell-height: var(--watch-shell-height-active);
+    --watch-shell-width: var(--watch-shell-width-active);
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translate3d(0, var(--slot-drop-active), 0) scale(1);
     filter: saturate(1);
     z-index: 5;
-    border-color: rgb(var(--color-primary-rgb) / 0.34);
-    box-shadow:
-      var(--shadow-ambient),
-      inset 0 0 0 1px rgb(var(--color-primary-rgb) / 0.12);
   }
 
   .watch-carousel-item:focus-visible {
@@ -113,13 +104,35 @@ const { item, isActive = false, index } = Astro.props;
   .watch-carousel-item__media {
     position: relative;
     z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .watch-carousel-item[data-slot='prev'] {
+    transform: translate3d(calc(var(--slot-offset-adjacent) * -1), var(--slot-drop-adjacent), 0) scale(0.92);
+  }
+
+  .watch-carousel-item[data-slot='next'] {
+    transform: translate3d(var(--slot-offset-adjacent), var(--slot-drop-adjacent), 0) scale(0.92);
+  }
+
+  .watch-carousel-item[data-slot='far-prev'] {
+    transform: translate3d(calc(var(--slot-offset-far) * -1), var(--slot-drop-far), 0) scale(0.84);
+  }
+
+  .watch-carousel-item[data-slot='far-next'] {
+    transform: translate3d(var(--slot-offset-far), var(--slot-drop-far), 0) scale(0.84);
   }
 
   @media (min-width: 1024px) {
     .watch-carousel-item {
-      flex-basis: var(--vitrine-carousel-item-desktop);
-      width: var(--vitrine-carousel-item-desktop);
-      padding: var(--space-24);
+      --item-padding: var(--space-10);
+      --watch-media-height: calc(var(--watch-shell-height) - (var(--item-padding) * 2));
+      --watch-media-width: calc(var(--watch-shell-width) - (var(--item-padding) * 1.2));
+      width: min(var(--vitrine-carousel-item-desktop), var(--watch-shell-width));
     }
   }
 
@@ -128,21 +141,11 @@ const { item, isActive = false, index } = Astro.props;
     .watch-carousel-item:hover,
     .watch-carousel-item.is-active,
     .watch-carousel-item.is-adjacent {
-      transform: none;
-      filter: none;
       transition-duration: 0s;
     }
 
     .watch-carousel-item {
-      opacity: 0.5;
-    }
-
-    .watch-carousel-item.is-adjacent {
-      opacity: 0.7;
-    }
-
-    .watch-carousel-item.is-active {
-      opacity: 1;
+      filter: none;
     }
   }
 </style>

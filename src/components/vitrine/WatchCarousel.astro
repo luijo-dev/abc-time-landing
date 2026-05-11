@@ -86,19 +86,36 @@ const { items } = Astro.props;
     const nextBtn = carouselRoot.querySelector('[data-carousel-next]');
     const background = vitrineScope.querySelector('[data-vitrine-background]');
     const totalItems = items.length;
+    let wheelDelta = 0;
+
+    const getSlot = (index, activeIndex) => {
+      const rawOffset = index - activeIndex;
+      const wrapOffset = rawOffset > totalItems / 2
+        ? rawOffset - totalItems
+        : rawOffset < -totalItems / 2
+          ? rawOffset + totalItems
+          : rawOffset;
+
+      if (wrapOffset === 0) return 'active';
+      if (wrapOffset === -1) return 'prev';
+      if (wrapOffset === 1) return 'next';
+      if (wrapOffset < 0) return 'far-prev';
+      return 'far-next';
+    };
 
     const setActive = (rawIndex, shouldFocus = false) => {
       const nextIndex = ((rawIndex % totalItems) + totalItems) % totalItems;
 
       items.forEach((item, index) => {
         const isActive = index === nextIndex;
-        const distance = Math.abs(index - nextIndex);
-        const isAdjacent = distance === 1 || distance === totalItems - 1;
-        const isBackground = distance >= 2;
+        const slot = getSlot(index, nextIndex);
+        const isAdjacent = slot === 'prev' || slot === 'next';
+        const isBackground = slot === 'far-prev' || slot === 'far-next';
 
         item.classList.toggle('is-active', isActive);
         item.classList.toggle('is-adjacent', isAdjacent && !isActive);
         item.classList.toggle('is-background', isBackground);
+        item.setAttribute('data-slot', slot);
         item.setAttribute('aria-selected', String(isActive));
         if (isActive) {
           item.setAttribute('aria-current', 'true');
@@ -208,6 +225,28 @@ const { items } = Astro.props;
       dot.addEventListener('click', () => setActive(index, true));
     });
 
+    carouselRoot.addEventListener(
+      'wheel',
+      (event) => {
+        if (totalItems <= 1) return;
+
+        event.preventDefault();
+
+        const dominantDelta = Math.abs(event.deltaY) >= Math.abs(event.deltaX)
+          ? event.deltaY
+          : event.deltaX;
+
+        wheelDelta += dominantDelta;
+
+        if (Math.abs(wheelDelta) < 40) return;
+
+        const current = Number(carouselRoot.dataset.activeIndex ?? '0');
+        setActive(current + (wheelDelta > 0 ? 1 : -1), true);
+        wheelDelta = 0;
+      },
+      { passive: false }
+    );
+
     // Initialize
     setActive(Number(carouselRoot.dataset.activeIndex ?? '0'));
   }
@@ -215,15 +254,32 @@ const { items } = Astro.props;
 
 <style>
   .watch-carousel {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    height: 100%;
+    min-height: 0;
     min-width: 0;
   }
 
   .watch-carousel__track {
+    --carousel-stage-height: clamp(22rem, 62vh, 33rem);
+    --watch-shell-height-active: clamp(17rem, 47vh, 24rem);
+    --watch-shell-height-adjacent: clamp(14.25rem, 39vh, 18.75rem);
+    --watch-shell-height-far: clamp(12.5rem, 33vh, 15.5rem);
+    --watch-shell-width-active: clamp(15rem, 41vw, 24rem);
+    --watch-shell-width-adjacent: clamp(12.75rem, 32vw, 18rem);
+    --watch-shell-width-far: clamp(11.5rem, 27vw, 15rem);
+    --slot-offset-adjacent: clamp(6.5rem, 19vw, 12rem);
+    --slot-offset-far: clamp(10.5rem, 29vw, 19rem);
+    --slot-drop-active: calc(var(--space-4) * -1);
+    --slot-drop-adjacent: var(--space-8);
+    --slot-drop-far: var(--space-12);
     position: relative;
     display: grid;
     place-items: center;
-    padding: var(--space-16);
-    min-height: 24rem;
+    overflow: visible;
+    min-height: 0;
+    height: 100%;
   }
 
   .watch-carousel__controls {
@@ -239,7 +295,7 @@ const { items } = Astro.props;
     place-items: center;
     width: 2.5rem;
     height: 2.5rem;
-    border: 1px solid rgb(var(--color-outline-variant-rgb) / 0.2);
+    border: none;
     border-radius: 999px;
     background: rgb(var(--color-surface-variant-rgb) / 0.6);
     color: var(--color-on-surface-variant);
@@ -247,14 +303,12 @@ const { items } = Astro.props;
     cursor: pointer;
     transition:
       color var(--transition-precision),
-      border-color var(--transition-precision),
       background var(--transition-precision);
   }
 
   .watch-carousel__nav-btn:hover,
   .watch-carousel__nav-btn:focus-visible {
     color: var(--color-primary);
-    border-color: rgb(var(--color-primary-rgb) / 0.34);
     background: rgb(var(--color-surface-variant-rgb) / 0.6);
   }
 
@@ -291,12 +345,23 @@ const { items } = Astro.props;
 
   @media (min-width: 1024px) {
     .watch-carousel__track {
-      gap: var(--space-24);
-      min-height: 32rem;
+      --carousel-stage-height: clamp(28rem, 72vh, 42rem);
+      --watch-shell-height-active: clamp(21.5rem, 56vh, 31rem);
+      --watch-shell-height-adjacent: clamp(17.5rem, 45vh, 24rem);
+      --watch-shell-height-far: clamp(15.25rem, 37vh, 19.25rem);
+      --watch-shell-width-active: clamp(19rem, 32vw, 28rem);
+      --watch-shell-width-adjacent: clamp(15.75rem, 24vw, 21rem);
+      --watch-shell-width-far: clamp(13.75rem, 19vw, 18rem);
+      --slot-offset-adjacent: clamp(9rem, 18vw, 17rem);
+      --slot-offset-far: clamp(14rem, 27vw, 24rem);
+      --slot-drop-active: calc(var(--space-8) * -1);
+      --slot-drop-adjacent: var(--space-12);
+      --slot-drop-far: var(--space-16);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .watch-carousel__nav-btn,
     .watch-carousel__indicator {
       transition: none;
     }

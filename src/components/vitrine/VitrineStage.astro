@@ -49,28 +49,48 @@ const activeWatch = watches[0];
 </div>
 
 <script is:inline>
+  const htmlRoot = document.documentElement;
+  const previousHtmlOverflow = htmlRoot.style.overflow;
+  const previousBodyOverflow = document.body.style.overflow;
+  const previousBodyOverscroll = document.body.style.overscrollBehavior;
+
   document.body.dataset.vitrine = 'true';
+  htmlRoot.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+  document.body.style.overscrollBehavior = 'none';
+
+  window.addEventListener(
+    'pagehide',
+    () => {
+      htmlRoot.style.overflow = previousHtmlOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+      document.body.style.overscrollBehavior = previousBodyOverscroll;
+    },
+    { once: true }
+  );
 </script>
 
 <style>
   .vitrine-shell {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
     min-height: 100vh;
+    min-height: 100dvh;
   }
 
   .vitrine-content {
     display: grid;
     gap: 0;
     width: 100%;
+    min-height: 0;
     margin: 0;
     padding: 0;
   }
 
   .vitrine-stage {
-    display: grid;
-    gap: var(--space-24);
-    align-content: start;
     position: relative;
-    min-height: calc(100vh - 4.5rem);
+    min-height: 0;
+    height: 100%;
   }
 
   .vitrine-stage__title {
@@ -124,15 +144,4 @@ const activeWatch = watches[0];
     }
   }
 
-  @media (min-width: 1024px) {
-    .vitrine-stage {
-      gap: var(--space-32);
-    }
-  }
-
-  @media (max-width: 719px) {
-    .vitrine-stage {
-      min-height: calc(100vh - 4rem);
-    }
-  }
 </style>
