@@ -43,8 +43,9 @@ const { item, isActive = false, index } = Astro.props;
     --watch-media-height: calc(var(--watch-shell-height) - (var(--item-padding) * 2));
     --watch-media-width: calc(var(--watch-shell-width) - (var(--item-padding) * 1.2));
     position: absolute;
-    display: grid;
-    gap: var(--space-16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: min(var(--vitrine-carousel-item-mobile), var(--watch-shell-width));
     max-width: 100%;
     height: min(var(--watch-shell-height), var(--carousel-stage-height));
@@ -109,22 +110,24 @@ const { item, isActive = false, index } = Astro.props;
     width: 100%;
     height: 100%;
     overflow: visible;
+    /* Ajuste para compensar el margen transparente desigual de las imágenes */
+    transform: translateY(-20%);
   }
 
   .watch-carousel-item[data-slot='prev'] {
-    transform: translate3d(calc(var(--slot-offset-adjacent) * -1), var(--slot-drop-adjacent), 0) scale(0.92);
+    transform: translate3d(calc(var(--slot-offset-adjacent) * -1), var(--slot-drop-adjacent), 0) scale(0.85);
   }
 
   .watch-carousel-item[data-slot='next'] {
-    transform: translate3d(var(--slot-offset-adjacent), var(--slot-drop-adjacent), 0) scale(0.92);
+    transform: translate3d(var(--slot-offset-adjacent), var(--slot-drop-adjacent), 0) scale(0.85);
   }
 
   .watch-carousel-item[data-slot='far-prev'] {
-    transform: translate3d(calc(var(--slot-offset-far) * -1), var(--slot-drop-far), 0) scale(0.84);
+    transform: translate3d(calc(var(--slot-offset-far) * -1), var(--slot-drop-far), 0) scale(0.70);
   }
 
   .watch-carousel-item[data-slot='far-next'] {
-    transform: translate3d(var(--slot-offset-far), var(--slot-drop-far), 0) scale(0.84);
+    transform: translate3d(var(--slot-offset-far), var(--slot-drop-far), 0) scale(0.70);
   }
 
   @media (min-width: 1024px) {
