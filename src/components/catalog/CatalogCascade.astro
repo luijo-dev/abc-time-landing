@@ -1,0 +1,180 @@
+---
+import type { FeaturedWatch } from '../../types/homepage';
+
+interface Props {
+  watches: FeaturedWatch[];
+}
+
+const { watches } = Astro.props;
+
+// Cascade offset per column position (0, 1, 2)
+const cascadeOffset = ['0px', '80px', '160px'];
+---
+
+<ul class="catalog-cascade" role="list" aria-label="Catálogo de relojes">
+  {watches.map((watch, i) => {
+    const col = i % 3;
+    const offset = cascadeOffset[col];
+    return (
+      <li
+        class="cascade-item"
+        style={`--cascade-drop: ${offset}`}
+        data-category={watch.mood ?? 'all'}
+      >
+        <a
+          href={watch.ctaUrl}
+          class="cascade-item__link"
+          aria-label={`Consultar sobre ${watch.name} por WhatsApp`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <div class="cascade-item__image-wrap">
+            {watch.image ? (
+              <img
+                src={watch.image.src}
+                alt={watch.image.alt}
+                class="cascade-item__image"
+                loading={i < 3 ? 'eager' : 'lazy'}
+              />
+            ) : (
+              <div class="cascade-item__image-placeholder" aria-hidden="true" />
+            )}
+          </div>
+
+          <div class="cascade-item__info">
+            <div class="cascade-item__meta">
+              <h2 class="cascade-item__name">{watch.name}</h2>
+              <span class="cascade-item__price">Consultar</span>
+            </div>
+            <p class="cascade-item__collection">{watch.collection}</p>
+          </div>
+        </a>
+      </li>
+    );
+  })}
+</ul>
+
+<style>
+  .catalog-cascade {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-24);
+    align-items: start;
+  }
+
+  .cascade-item {
+    margin-top: var(--cascade-drop, 0px);
+    transition: transform var(--transition-precision), opacity var(--transition-precision);
+  }
+
+  .cascade-item__link {
+    display: block;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--color-surface);
+    color: inherit;
+    transition:
+      transform 300ms ease,
+      box-shadow 300ms ease;
+  }
+
+  .cascade-item__link:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 60px rgb(var(--color-shadow-rgb) / 0.7);
+  }
+
+  .cascade-item__link:hover .cascade-item__image {
+    transform: scale(1.04);
+  }
+
+  /* Image container */
+  .cascade-item__image-wrap {
+    position: relative;
+    aspect-ratio: 3 / 3.5;
+    overflow: hidden;
+    background: #0e0e0e;
+  }
+
+  .cascade-item__image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    transition: transform 400ms ease;
+    padding: var(--space-16);
+  }
+
+  .cascade-item__image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      135deg,
+      var(--color-surface-variant) 0%,
+      var(--color-surface) 100%
+    );
+  }
+
+  /* Info row below image */
+  .cascade-item__info {
+    padding: var(--space-16) var(--space-16) var(--space-24);
+    border-top: 1px solid rgb(var(--color-outline-variant-rgb) / 0.1);
+  }
+
+  .cascade-item__meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-8);
+    margin-bottom: var(--space-4);
+  }
+
+  .cascade-item__name {
+    font-family: var(--font-serif);
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    font-weight: 500;
+    color: var(--color-on-surface);
+    line-height: 1.2;
+  }
+
+  .cascade-item__price {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .cascade-item__collection {
+    font-family: var(--font-body);
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--color-on-surface-variant);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  /* Responsive: 2 cols tablet */
+  @media (max-width: 900px) {
+    .catalog-cascade {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .cascade-item {
+      /* On 2-col, alternate drop */
+      margin-top: calc(var(--cascade-drop, 0px) * 0.5);
+    }
+  }
+
+  /* Responsive: 1 col mobile */
+  @media (max-width: 560px) {
+    .catalog-cascade {
+      grid-template-columns: 1fr;
+      gap: var(--space-16);
+    }
+
+    .cascade-item {
+      margin-top: 0;
+    }
+  }
+</style>
