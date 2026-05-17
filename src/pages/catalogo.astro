@@ -1,0 +1,333 @@
+---
+import Base from '../layouts/Base.astro';
+import CatalogHeader from '../components/catalog/CatalogHeader.astro';
+import CatalogCascade from '../components/catalog/CatalogCascade.astro';
+import type { FeaturedWatch } from '../types/homepage';
+
+const watches: FeaturedWatch[] = [
+  {
+    id: 'daytona',
+    name: 'Daytona',
+    collection: 'Cosmograph · Rolex',
+    image: {
+      src: '/images/watches/daytona.webp',
+      alt: 'Rolex Cosmograph Daytona en fondo oscuro editorial',
+      priority: true,
+    },
+    specs: [
+      { label: 'Movimiento', value: 'Automático Cal. 4131' },
+      { label: 'Material', value: 'Oro Everose 18k' },
+      { label: 'Reserva', value: '72 horas' },
+    ],
+    ctaUrl: 'https://wa.me/5490000000000?text=Hola%2C%20quiero%20consultar%20por%20el%20Cosmograph%20Daytona',
+    ctaLabel: 'Consultar Daytona por WhatsApp',
+    mood: 'gold',
+  },
+  {
+    id: 'royal-oak',
+    name: 'Royal Oak',
+    collection: 'Audemars Piguet',
+    image: {
+      src: '/images/watches/royal-oak.webp',
+      alt: 'Audemars Piguet Royal Oak con iluminación de vitrina premium',
+    },
+    specs: [
+      { label: 'Movimiento', value: 'Automático Cal. 4302' },
+      { label: 'Material', value: 'Acero satinado' },
+      { label: 'Reserva', value: '70 horas' },
+    ],
+    ctaUrl: 'https://wa.me/5490000000000?text=Hola%2C%20quiero%20consultar%20por%20el%20Royal%20Oak',
+    ctaLabel: 'Consultar Royal Oak por WhatsApp',
+    mood: 'smoke',
+  },
+  {
+    id: 'submariner',
+    name: 'Submariner',
+    collection: 'Oyster Perpetual · Rolex',
+    image: {
+      src: '/images/watches/submariner.webp',
+      alt: 'Rolex Submariner en composición oscura con brillo cálido',
+    },
+    specs: [
+      { label: 'Movimiento', value: 'Automático Cal. 3235' },
+      { label: 'Material', value: 'Oystersteel' },
+      { label: 'Reserva', value: '70 horas' },
+    ],
+    ctaUrl: 'https://wa.me/5490000000000?text=Hola%2C%20quiero%20consultar%20por%20el%20Submariner',
+    ctaLabel: 'Consultar Submariner por WhatsApp',
+    mood: 'smoke',
+  },
+  {
+    id: 'nautilus',
+    name: 'Nautilus',
+    collection: 'Patek Philippe',
+    image: {
+      src: '/images/watches/nautilus.webp',
+      alt: 'Patek Philippe Nautilus en composición editorial oscura',
+    },
+    specs: [
+      { label: 'Movimiento', value: 'Automático Cal. 26-330' },
+      { label: 'Material', value: 'Acero pulido' },
+      { label: 'Reserva', value: '45 horas' },
+    ],
+    ctaUrl: 'https://wa.me/5490000000000?text=Hola%2C%20quiero%20consultar%20por%20el%20Nautilus',
+    ctaLabel: 'Consultar Nautilus por WhatsApp',
+    mood: 'gold',
+  },
+  {
+    id: 'speedmaster',
+    name: 'Speedmaster',
+    collection: 'Moonwatch · Omega',
+    image: {
+      src: '/images/watches/speedmaster.webp',
+      alt: 'Omega Speedmaster Moonwatch en iluminación de estudio premium',
+    },
+    specs: [
+      { label: 'Movimiento', value: 'Manual Cal. 3861' },
+      { label: 'Material', value: 'Acero cepillado' },
+      { label: 'Reserva', value: '50 horas' },
+    ],
+    ctaUrl: 'https://wa.me/5490000000000?text=Hola%2C%20quiero%20consultar%20por%20el%20Speedmaster',
+    ctaLabel: 'Consultar Speedmaster por WhatsApp',
+    mood: 'smoke',
+  },
+];
+---
+
+<Base
+  title="Catálogo | AVC TIME — Alta Relojería"
+  description="Explora nuestra selección curada de relojes de alta relojería. Piezas icónicas disponibles para consulta privada."
+>
+  <div class="catalog-shell">
+    <CatalogHeader />
+
+    <main class="catalog-main">
+      <!-- Hero editorial -->
+      <section class="catalog-hero" aria-labelledby="catalog-heading">
+        <div class="catalog-hero__content">
+          <p class="catalog-hero__eyebrow">Curaduría Exclusiva</p>
+          <h1 id="catalog-heading" class="catalog-hero__title">
+            Obras Maestras<br />
+            <span class="catalog-hero__title--dim">del Tiempo</span>
+          </h1>
+        </div>
+
+        <!-- Filter pills -->
+        <div class="catalog-filters" role="group" aria-label="Filtrar por categoría">
+          <button class="filter-pill is-active" data-filter="all">Todos</button>
+          <button class="filter-pill" data-filter="gold">Complicaciones</button>
+          <button class="filter-pill" data-filter="smoke">Deportivos</button>
+        </div>
+      </section>
+
+      <!-- Cascade grid -->
+      <section class="catalog-grid-section" aria-label="Lista de relojes">
+        <CatalogCascade watches={watches} />
+      </section>
+    </main>
+
+    <!-- Footer minimal -->
+    <footer class="catalog-footer" aria-label="Pie de página">
+      <span class="catalog-footer__brand">AVC Time</span>
+      <nav class="catalog-footer__links" aria-label="Legal">
+        <a href="#">Privacidad</a>
+        <a href="#">Términos</a>
+        <a href="#">Newsletter</a>
+      </nav>
+      <span class="catalog-footer__copy">© 2024 AVC TIME. Todos los derechos reservados.</span>
+    </footer>
+  </div>
+</Base>
+
+<script>
+  const CASCADE_OFFSETS = ['0px', '80px', '160px'];
+
+  const pills = document.querySelectorAll<HTMLButtonElement>('.filter-pill');
+  const items = document.querySelectorAll<HTMLElement>('.cascade-item');
+
+  function applyFilter(filter: string) {
+    let visibleCount = 0;
+
+    items.forEach((item) => {
+      const match = filter === 'all' || item.dataset.category === filter;
+      if (match) {
+        item.style.display = '';
+        // Recalculate cascade drop based on visible position
+        const col = visibleCount % 3;
+        item.style.setProperty('--cascade-drop', CASCADE_OFFSETS[col]);
+        visibleCount++;
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  }
+
+  pills.forEach((pill) => {
+    pill.addEventListener('click', () => {
+      pills.forEach((p) => p.classList.remove('is-active'));
+      pill.classList.add('is-active');
+      applyFilter(pill.dataset.filter ?? 'all');
+    });
+  });
+
+  // Apply default on load
+  applyFilter('all');
+</script>
+
+<style>
+  .catalog-shell {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    background:
+      linear-gradient(
+        to top left,
+        rgb(140 115 70 / 0.28) 0%,
+        rgb(100 85 55 / 0.1) 35%,
+        transparent 60%
+      ),
+      #0c0a08;
+  }
+
+  .catalog-main {
+    width: min(1200px, calc(100% - var(--space-48)));
+    margin: 0 auto;
+    padding: var(--space-48) 0 var(--space-64);
+  }
+
+  /* ── Hero ── */
+  .catalog-hero {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-32);
+    margin-bottom: var(--space-48);
+    flex-wrap: wrap;
+  }
+
+  .catalog-hero__eyebrow {
+    font-family: var(--font-body);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-on-surface-variant);
+    margin-bottom: var(--space-12);
+  }
+
+  .catalog-hero__title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 700;
+    line-height: var(--line-height-tight);
+    color: var(--color-on-surface);
+    letter-spacing: var(--letter-spacing-display);
+  }
+
+  .catalog-hero__title--dim {
+    color: var(--color-on-surface-variant);
+  }
+
+  /* ── Filter pills ── */
+  .catalog-filters {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    flex-wrap: wrap;
+    align-self: flex-end;
+  }
+
+  .filter-pill {
+    padding: var(--space-8) var(--space-16);
+    border-radius: 999px;
+    border: 1px solid rgb(var(--color-outline-variant-rgb) / 0.25);
+    background: transparent;
+    color: var(--color-on-surface-variant);
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition:
+      background var(--transition-precision),
+      color var(--transition-precision),
+      border-color var(--transition-precision);
+  }
+
+  .filter-pill:hover {
+    border-color: rgb(var(--color-outline-variant-rgb) / 0.5);
+    color: var(--color-on-surface);
+  }
+
+  .filter-pill.is-active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-on-primary);
+    font-weight: 600;
+  }
+
+  /* ── Grid section ── */
+  .catalog-grid-section {
+    margin-top: var(--space-32);
+  }
+
+  /* ── Footer ── */
+  .catalog-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--space-16);
+    padding: var(--space-32) min(var(--space-48), 4vw);
+    border-top: 1px solid rgb(var(--color-outline-variant-rgb) / 0.1);
+  }
+
+  .catalog-footer__brand {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    letter-spacing: 0.04em;
+  }
+
+  .catalog-footer__links {
+    display: flex;
+    gap: var(--space-24);
+  }
+
+  .catalog-footer__links a {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-on-surface-variant);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color var(--transition-precision);
+  }
+
+  .catalog-footer__links a:hover {
+    color: var(--color-on-surface);
+  }
+
+  .catalog-footer__copy {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    color: rgb(var(--color-outline-variant-rgb) / 0.6);
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 720px) {
+    .catalog-hero {
+      flex-direction: column;
+      align-items: flex-start;
+      margin-bottom: var(--space-32);
+    }
+
+    .catalog-footer {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-12);
+    }
+  }
+</style>
