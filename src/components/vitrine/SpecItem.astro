@@ -17,21 +17,21 @@ const { label, value } = Astro.props;
 <style>
   .spec-item {
     display: grid;
-    gap: var(--space-4);
-    padding: var(--space-12) 0;
+    gap: var(--space-2);
+    padding: var(--space-8) 0;
   }
 
   .spec-item__body {
     display: grid;
-    gap: var(--space-4);
+    gap: var(--space-2);
   }
 
   .spec-item__label {
     color: var(--color-on-surface-variant);
     font-family: var(--font-body);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: var(--letter-spacing-label);
+    font-size: 0.55rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
     line-height: 1.2;
     text-transform: uppercase;
   }
@@ -39,7 +39,7 @@ const { label, value } = Astro.props;
   .spec-item__value {
     color: var(--color-on-surface);
     font-family: var(--font-serif);
-    font-size: clamp(1.125rem, 2vw, 1.35rem);
-    line-height: 1.35;
+    font-size: clamp(1.2rem, 2.5vw, 1.45rem);
+    line-height: 1.2;
   }
 </style>

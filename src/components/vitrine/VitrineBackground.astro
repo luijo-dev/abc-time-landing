@@ -16,59 +16,40 @@ const { mood } = Astro.props;
   .vitrine-background {
     position: fixed;
     inset: 0;
-    z-index: -1;
-    background: linear-gradient(
-      135deg,
-      var(--vitrine-gradient-start) 0%,
-      var(--color-background) 40%,
-      var(--vitrine-gradient-warm) 72%,
-      var(--vitrine-gold-whisper) 100%
-    );
+    z-index: 0;
+    background: 
+      linear-gradient(
+        to top left,
+        rgb(140 115 70 / 0.28) 0%,
+        rgb(100 85 55 / 0.1) 35%,
+        transparent 60%
+      ),
+      #0c0a08;
     transition: background var(--transition-precision);
   }
 
-  .vitrine-background::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(circle at top left, rgb(212 175 55 / 0.08), transparent 34%),
-      radial-gradient(ellipse at center, transparent 24%, var(--vitrine-smoke) 100%);
-    pointer-events: none;
-  }
-
-  /* Gold mood: warmer, more champagne glow */
+  /* Gold mood: warmer */
   .vitrine-background--gold {
-    background: linear-gradient(
-      135deg,
-      var(--vitrine-gradient-start) 0%,
-      var(--color-background) 30%,
-      rgb(212 175 55 / 0.08) 60%,
-      var(--vitrine-gold-whisper) 100%
-    );
+    background: 
+      linear-gradient(
+        to top left,
+        rgb(160 130 65 / 0.32) 0%,
+        rgb(115 90 45 / 0.12) 35%,
+        transparent 60%
+      ),
+      #0c0a08;
   }
 
-  .vitrine-background--gold::after {
-    background:
-      radial-gradient(circle at top left, rgb(212 175 55 / 0.14), transparent 40%),
-      radial-gradient(ellipse at center, transparent 20%, var(--vitrine-smoke) 100%);
-  }
-
-  /* Smoke mood: cooler, deeper charcoal atmosphere */
+  /* Smoke mood: cooler, olive tones */
   .vitrine-background--smoke {
-    background: linear-gradient(
-      135deg,
-      var(--vitrine-gradient-start) 0%,
-      var(--color-surface-lowest) 40%,
-      var(--color-surface-dim) 72%,
-      var(--vitrine-gradient-start) 100%
-    );
-  }
-
-  .vitrine-background--smoke::after {
-    background:
-      radial-gradient(circle at top left, rgb(141 131 100 / 0.06), transparent 34%),
-      radial-gradient(ellipse at center, transparent 28%, var(--vitrine-smoke) 100%);
+    background: 
+      linear-gradient(
+        to top left,
+        rgb(110 105 85 / 0.22) 0%,
+        rgb(85 80 65 / 0.08) 35%,
+        transparent 60%
+      ),
+      #0a0a0a;
   }
 
   @media (prefers-reduced-motion: reduce) {
