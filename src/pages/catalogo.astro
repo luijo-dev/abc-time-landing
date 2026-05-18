@@ -51,38 +51,46 @@ import { watches } from '../data/watches';
 </Base>
 
 <script>
-  const CASCADE_OFFSETS = ['0px', '80px', '160px'];
+  function initFilters() {
+    const CASCADE_OFFSETS = ['0px', '80px', '160px'];
 
-  const pills = document.querySelectorAll<HTMLButtonElement>('.filter-pill');
-  const items = document.querySelectorAll<HTMLElement>('.cascade-item');
+    const pills = document.querySelectorAll<HTMLButtonElement>('.filter-pill');
+    const items = document.querySelectorAll<HTMLElement>('.cascade-item');
 
-  function applyFilter(filter: string) {
-    let visibleCount = 0;
+    // Si no estamos en la página del catálogo, no hacemos nada
+    if (pills.length === 0 || items.length === 0) return;
 
-    items.forEach((item) => {
-      const match = filter === 'all' || item.dataset.category === filter;
-      if (match) {
-        item.style.display = '';
-        // Recalculate cascade drop based on visible position
-        const col = visibleCount % 3;
-        item.style.setProperty('--cascade-drop', CASCADE_OFFSETS[col]);
-        visibleCount++;
-      } else {
-        item.style.display = 'none';
-      }
+    function applyFilter(filter: string) {
+      let visibleCount = 0;
+
+      items.forEach((item) => {
+        const match = filter === 'all' || item.dataset.category === filter;
+        if (match) {
+          item.style.display = '';
+          // Recalculate cascade drop based on visible position
+          const col = visibleCount % 3;
+          item.style.setProperty('--cascade-drop', CASCADE_OFFSETS[col]);
+          visibleCount++;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    pills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        pills.forEach((p) => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        applyFilter(pill.dataset.filter ?? 'all');
+      });
     });
+
+    // Siempre buscamos cuál es el activo al cargar (para retener estado si se quiere, o resetear)
+    const activePill = document.querySelector<HTMLButtonElement>('.filter-pill.is-active');
+    applyFilter(activePill?.dataset.filter ?? 'all');
   }
 
-  pills.forEach((pill) => {
-    pill.addEventListener('click', () => {
-      pills.forEach((p) => p.classList.remove('is-active'));
-      pill.classList.add('is-active');
-      applyFilter(pill.dataset.filter ?? 'all');
-    });
-  });
-
-  // Apply default on load
-  applyFilter('all');
+  document.addEventListener('astro:page-load', initFilters);
 </script>
 
 <style>
