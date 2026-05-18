@@ -22,20 +22,31 @@ const cascadeOffset = ['0px', '80px', '160px'];
         data-category={watch.mood ?? 'all'}
       >
         <a
-          href={watch.ctaUrl}
+          href={`/watches/${watch.id}`}
           class="cascade-item__link"
-          aria-label={`Consultar sobre ${watch.name} por WhatsApp`}
-          target="_blank"
-          rel="noopener noreferrer"
+          aria-label={`Ver detalle de ${watch.name}`}
         >
           <div class="cascade-item__image-wrap">
             {watch.image ? (
-              <img
-                src={watch.image.src}
-                alt={watch.image.alt}
-                class="cascade-item__image"
-                loading={i < 3 ? 'eager' : 'lazy'}
-              />
+              <>
+                {/* Primary image */}
+                <img
+                  src={watch.image.src}
+                  alt={watch.image.alt}
+                  class="cascade-item__image cascade-item__image--primary"
+                  loading={i < 3 ? 'eager' : 'lazy'}
+                />
+                {/* Hover image — only rendered if hoverImage is defined */}
+                {watch.hoverImage && (
+                  <img
+                    src={watch.hoverImage.src}
+                    alt={watch.hoverImage.alt}
+                    class="cascade-item__image cascade-item__image--hover"
+                    loading="lazy"
+                    aria-hidden="true"
+                  />
+                )}
+              </>
             ) : (
               <div class="cascade-item__image-placeholder" aria-hidden="true" />
             )}
@@ -53,6 +64,7 @@ const cascadeOffset = ['0px', '80px', '160px'];
     );
   })}
 </ul>
+
 
 <style>
   .catalog-cascade {
@@ -73,6 +85,7 @@ const cascadeOffset = ['0px', '80px', '160px'];
     overflow: hidden;
     background: var(--color-surface);
     color: inherit;
+    text-decoration: none;
     transition:
       transform 300ms ease,
       box-shadow 300ms ease;
@@ -83,10 +96,6 @@ const cascadeOffset = ['0px', '80px', '160px'];
     box-shadow: 0 24px 60px rgb(var(--color-shadow-rgb) / 0.7);
   }
 
-  .cascade-item__link:hover .cascade-item__image {
-    transform: scale(1.04);
-  }
-
   /* Image container */
   .cascade-item__image-wrap {
     position: relative;
@@ -95,13 +104,40 @@ const cascadeOffset = ['0px', '80px', '160px'];
     background: #0e0e0e;
   }
 
+  /* Both images share the same slot */
   .cascade-item__image {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: contain;
     object-position: center;
-    transition: transform 400ms ease;
     padding: var(--space-16);
+  }
+
+  /* Primary: always visible, scales subtly on hover */
+  .cascade-item__image--primary {
+    opacity: 1;
+    transition:
+      opacity 500ms cubic-bezier(0.4, 0, 0.2, 1),
+      transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .cascade-item__link:hover .cascade-item__image--primary {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+
+  /* Hover image: hidden by default, crossfades in */
+  .cascade-item__image--hover {
+    opacity: 0;
+    transform: scale(0.97);
+    transition:
+      opacity 500ms cubic-bezier(0.4, 0, 0.2, 1),
+      transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .cascade-item__link:hover .cascade-item__image--hover {
+    opacity: 1;
+    transform: scale(1);
   }
 
   .cascade-item__image-placeholder {
