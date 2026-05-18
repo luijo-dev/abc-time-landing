@@ -35,6 +35,7 @@ const cascadeOffset = ['0px', '80px', '160px'];
                   alt={watch.image.alt}
                   class="cascade-item__image cascade-item__image--primary"
                   loading={i < 3 ? 'eager' : 'lazy'}
+                  transition:name={`watch-img-${watch.id}`}
                 />
                 {/* Hover image — only rendered if hoverImage is defined */}
                 {watch.hoverImage && (

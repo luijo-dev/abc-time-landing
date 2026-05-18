@@ -30,40 +30,36 @@ const rootClassName = `loading-screen loading-screen--${variant}`;
   </span>
 </div>
 
-<script is:inline>
-  const loadingScreenRoot = document.querySelector('[data-loading-screen-root]');
-  const loadingScreen = loadingScreenRoot?.querySelector('[data-loading-screen]');
-  const loadingContent = loadingScreenRoot?.querySelector('.loading-screen__content');
+<script>
+  function initLoadingScreen() {
+    const loadingScreenRoot = document.querySelector('[data-loading-screen-root]') as HTMLElement | null;
+    const loadingScreen = loadingScreenRoot?.querySelector('[data-loading-screen]');
+    const loadingContent = loadingScreenRoot?.querySelector('.loading-screen__content');
 
-  if (loadingScreenRoot instanceof HTMLElement && loadingScreen instanceof HTMLElement) {
-    const minDuration = Number(loadingScreenRoot.dataset.minDuration ?? '2000');
-    const pageReady = new Promise((resolve) => {
-      if (document.readyState !== 'loading') {
-        resolve();
-        return;
-      }
+    if (loadingScreenRoot && loadingScreen) {
+      const minDuration = Number(loadingScreenRoot.dataset.minDuration ?? '2000');
+      
+      const timer = new Promise((resolve) => {
+        window.setTimeout(resolve, minDuration);
+      });
 
-      document.addEventListener('DOMContentLoaded', () => resolve(), { once: true });
-    });
+      timer.then(() => {
+        loadingScreen.classList.add('loading-screen--fade-out');
 
-    const timer = new Promise((resolve) => {
-      window.setTimeout(resolve, minDuration);
-    });
+        const removeLoadingScreen = () => {
+          loadingScreenRoot.remove();
+        };
 
-    Promise.all([pageReady, timer]).then(() => {
-      loadingScreen.classList.add('loading-screen--fade-out');
-
-      const removeLoadingScreen = () => {
-        loadingScreenRoot.remove();
-      };
-
-      // Wait for content fade-out transition, then remove entire overlay
-      if (loadingContent instanceof HTMLElement) {
-        loadingContent.addEventListener('transitionend', removeLoadingScreen, { once: true });
-      }
-      window.setTimeout(removeLoadingScreen, 500);
-    });
+        if (loadingContent instanceof HTMLElement) {
+          loadingContent.addEventListener('transitionend', removeLoadingScreen, { once: true });
+        }
+        window.setTimeout(removeLoadingScreen, 500);
+      });
+    }
   }
+
+  // Ejecutar al cargar la página por primera vez y en cada navegación de View Transitions
+  document.addEventListener('astro:page-load', initLoadingScreen);
 </script>
 
 <style>

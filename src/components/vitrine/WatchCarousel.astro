@@ -69,187 +69,205 @@ const { items } = Astro.props;
   </div>
 </section>
 
-<script is:inline>
-  const carouselRoot = document.currentScript?.previousElementSibling?.parentElement?.querySelector('[data-carousel]');
+<script>
+  function initCarousels() {
+    const carousels = document.querySelectorAll('[data-carousel]');
 
-  if (carouselRoot instanceof HTMLElement) {
-    const vitrineScope = carouselRoot.closest('.vitrine-shell') ?? document;
-    const items = Array.from(carouselRoot.querySelectorAll('[data-carousel-item]'));
-    const specPanels = Array.from(vitrineScope.querySelectorAll('[data-spec-panel]'));
-    const ctaLink = vitrineScope.querySelector('[data-vitrine-cta-link]');
-    const ctaCopy = vitrineScope.querySelector('[data-vitrine-cta-copy]');
-    const stageName = vitrineScope.querySelector('[data-watch-stage-name]');
-    const stageCollection = vitrineScope.querySelector('[data-watch-stage-collection]');
-    const headerCta = vitrineScope.querySelector('[data-header-cta]');
-    const indicators = Array.from(carouselRoot.querySelectorAll('[data-carousel-indicator]'));
-    const prevBtn = carouselRoot.querySelector('[data-carousel-prev]');
-    const nextBtn = carouselRoot.querySelector('[data-carousel-next]');
-    const background = vitrineScope.querySelector('[data-vitrine-background]');
-    const totalItems = items.length;
-    let wheelDelta = 0;
+    carousels.forEach((carouselRoot) => {
+      if (!(carouselRoot instanceof HTMLElement)) return;
 
-    const getSlot = (index, activeIndex) => {
-      const rawOffset = index - activeIndex;
-      const wrapOffset = rawOffset > totalItems / 2
-        ? rawOffset - totalItems
-        : rawOffset < -totalItems / 2
-          ? rawOffset + totalItems
-          : rawOffset;
+      const vitrineScope = carouselRoot.closest('.vitrine-shell') ?? document;
+      const items = Array.from(carouselRoot.querySelectorAll('[data-carousel-item]'));
+      const specPanels = Array.from(vitrineScope.querySelectorAll('[data-spec-panel]'));
+      const ctaLink = vitrineScope.querySelector('[data-vitrine-cta-link]');
+      const ctaCopy = vitrineScope.querySelector('[data-vitrine-cta-copy]');
+      const stageName = vitrineScope.querySelector('[data-watch-stage-name]');
+      const stageCollection = vitrineScope.querySelector('[data-watch-stage-collection]');
+      const headerCta = vitrineScope.querySelector('[data-header-cta]');
+      const indicators = Array.from(carouselRoot.querySelectorAll('[data-carousel-indicator]'));
+      const prevBtn = carouselRoot.querySelector('[data-carousel-prev]');
+      const nextBtn = carouselRoot.querySelector('[data-carousel-next]');
+      const background = vitrineScope.querySelector('[data-vitrine-background]');
+      const totalItems = items.length;
+      let wheelDelta = 0;
 
-      if (wrapOffset === 0) return 'active';
-      if (wrapOffset === -1) return 'prev';
-      if (wrapOffset === 1) return 'next';
-      if (wrapOffset < 0) return 'far-prev';
-      return 'far-next';
-    };
+      const getSlot = (index: number, activeIndex: number) => {
+        const rawOffset = index - activeIndex;
+        const wrapOffset = rawOffset > totalItems / 2
+          ? rawOffset - totalItems
+          : rawOffset < -totalItems / 2
+            ? rawOffset + totalItems
+            : rawOffset;
 
-    const setActive = (rawIndex, shouldFocus = false) => {
-      const nextIndex = ((rawIndex % totalItems) + totalItems) % totalItems;
+        if (wrapOffset === 0) return 'active';
+        if (wrapOffset === -1) return 'prev';
+        if (wrapOffset === 1) return 'next';
+        if (wrapOffset < 0) return 'far-prev';
+        return 'far-next';
+      };
 
+      const setActive = (rawIndex: number, shouldFocus = false) => {
+        const nextIndex = ((rawIndex % totalItems) + totalItems) % totalItems;
+
+        items.forEach((item, index) => {
+          const isActive = index === nextIndex;
+          const slot = getSlot(index, nextIndex);
+          const isAdjacent = slot === 'prev' || slot === 'next';
+          const isBackground = slot === 'far-prev' || slot === 'far-next';
+
+          item.classList.toggle('is-active', isActive);
+          item.classList.toggle('is-adjacent', isAdjacent && !isActive);
+          item.classList.toggle('is-background', isBackground);
+          item.setAttribute('data-slot', slot);
+          item.setAttribute('aria-selected', String(isActive));
+          if (isActive) {
+            item.setAttribute('aria-current', 'true');
+          } else {
+            item.removeAttribute('aria-current');
+          }
+          (item as HTMLElement).tabIndex = isActive ? 0 : -1;
+        });
+
+        specPanels.forEach((panel) => {
+          const isActive = panel.getAttribute('data-spec-index') === String(nextIndex);
+          panel.classList.toggle('is-hidden', !isActive);
+          panel.setAttribute('aria-hidden', String(!isActive));
+        });
+
+        indicators.forEach((dot, index) => {
+          dot.classList.toggle('is-active', index === nextIndex);
+          dot.setAttribute('aria-selected', String(index === nextIndex));
+        });
+
+        const activeItem = items[nextIndex];
+        if (ctaLink instanceof HTMLAnchorElement && activeItem instanceof HTMLElement) {
+          ctaLink.href = activeItem.dataset.ctaUrl ?? ctaLink.href;
+          if (ctaCopy instanceof HTMLElement) {
+            ctaCopy.textContent = activeItem.dataset.ctaLabel ?? 'Hablar por WhatsApp';
+          }
+          const watchName = activeItem.dataset.watchName ?? '';
+          const watchCollection = activeItem.dataset.watchCollection ?? '';
+          ctaLink.setAttribute('aria-label', `Hablar por WhatsApp sobre ${watchCollection} ${watchName}`);
+        }
+
+        if (activeItem instanceof HTMLElement) {
+          if (stageName instanceof HTMLElement) {
+            stageName.textContent = activeItem.dataset.watchName ?? '';
+          }
+
+          if (stageCollection instanceof HTMLElement) {
+            stageCollection.textContent = activeItem.dataset.watchCollection ?? '';
+          }
+        }
+
+        // Update header CTA
+        if (headerCta instanceof HTMLAnchorElement && activeItem instanceof HTMLElement) {
+          headerCta.href = activeItem.dataset.ctaUrl ?? headerCta.href;
+        }
+
+        // Update background mood
+        if (background instanceof HTMLElement && activeItem instanceof HTMLElement) {
+          const mood = activeItem.dataset.mood;
+          background.className = 'vitrine-background';
+          if (mood) {
+            background.classList.add(`vitrine-background--${mood}`);
+          }
+        }
+
+        carouselRoot.dataset.activeIndex = String(nextIndex);
+
+        if (shouldFocus) {
+          (activeItem as HTMLElement)?.focus();
+        }
+      };
+
+      // Limpiar listeners antiguos usando abort controller si fuera necesario, 
+      // pero como el DOM se recrea, no es estrictamente necesario para View Transitions.
+
+      // Click on items
       items.forEach((item, index) => {
-        const isActive = index === nextIndex;
-        const slot = getSlot(index, nextIndex);
-        const isAdjacent = slot === 'prev' || slot === 'next';
-        const isBackground = slot === 'far-prev' || slot === 'far-next';
-
-        item.classList.toggle('is-active', isActive);
-        item.classList.toggle('is-adjacent', isAdjacent && !isActive);
-        item.classList.toggle('is-background', isBackground);
-        item.setAttribute('data-slot', slot);
-        item.setAttribute('aria-selected', String(isActive));
-        if (isActive) {
-          item.setAttribute('aria-current', 'true');
-        } else {
-          item.removeAttribute('aria-current');
-        }
-        item.tabIndex = isActive ? 0 : -1;
+        item.addEventListener('click', () => setActive(index));
+        item.addEventListener('keydown', (event: Event) => {
+          const e = event as KeyboardEvent;
+          if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            setActive(index + 1, true);
+          }
+          if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            setActive(index - 1, true);
+          }
+          if (e.key === 'Home') {
+            e.preventDefault();
+            setActive(0, true);
+          }
+          if (e.key === 'End') {
+            e.preventDefault();
+            setActive(totalItems - 1, true);
+          }
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setActive(index, true);
+          }
+        });
       });
 
-      specPanels.forEach((panel) => {
-        const isActive = panel.getAttribute('data-spec-index') === String(nextIndex);
-        panel.classList.toggle('is-hidden', !isActive);
-        panel.setAttribute('aria-hidden', String(!isActive));
-      });
+      // Previous / Next buttons
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+          const current = Number(carouselRoot.dataset.activeIndex ?? '0');
+          setActive(current - 1, true);
+        });
+      }
 
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          const current = Number(carouselRoot.dataset.activeIndex ?? '0');
+          setActive(current + 1, true);
+        });
+      }
+
+      // Indicator dots
       indicators.forEach((dot, index) => {
-        dot.classList.toggle('is-active', index === nextIndex);
-        dot.setAttribute('aria-selected', String(index === nextIndex));
+        dot.addEventListener('click', () => setActive(index, true));
       });
 
-      const activeItem = items[nextIndex];
-      if (ctaLink instanceof HTMLAnchorElement && activeItem instanceof HTMLElement) {
-        ctaLink.href = activeItem.dataset.ctaUrl ?? ctaLink.href;
-        if (ctaCopy instanceof HTMLElement) {
-          ctaCopy.textContent = activeItem.dataset.ctaLabel ?? 'Hablar por WhatsApp';
-        }
-        const watchName = activeItem.dataset.watchName ?? '';
-        const watchCollection = activeItem.dataset.watchCollection ?? '';
-        ctaLink.setAttribute('aria-label', `Hablar por WhatsApp sobre ${watchCollection} ${watchName}`);
-      }
+      // Wheel implementation
+      // Usar un controlador de aborto para limpiar si la pagina cambia, aunque Astro
+      // con client router suele destruir los nodos. Aún así es buena práctica.
+      const ac = new AbortController();
+      carouselRoot.addEventListener(
+        'wheel',
+        (event: Event) => {
+          const e = event as WheelEvent;
+          if (totalItems <= 1) return;
 
-      if (activeItem instanceof HTMLElement) {
-        if (stageName instanceof HTMLElement) {
-          stageName.textContent = activeItem.dataset.watchName ?? '';
-        }
+          e.preventDefault();
 
-        if (stageCollection instanceof HTMLElement) {
-          stageCollection.textContent = activeItem.dataset.watchCollection ?? '';
-        }
-      }
+          const dominantDelta = Math.abs(e.deltaY) >= Math.abs(e.deltaX)
+            ? e.deltaY
+            : e.deltaX;
 
-      // Update header CTA
-      if (headerCta instanceof HTMLAnchorElement && activeItem instanceof HTMLElement) {
-        headerCta.href = activeItem.dataset.ctaUrl ?? headerCta.href;
-      }
+          wheelDelta += dominantDelta;
 
-      // Update background mood
-      if (background instanceof HTMLElement && activeItem instanceof HTMLElement) {
-        const mood = activeItem.dataset.mood;
-        background.className = 'vitrine-background';
-        if (mood) {
-          background.classList.add(`vitrine-background--${mood}`);
-        }
-      }
+          if (Math.abs(wheelDelta) < 40) return;
 
-      carouselRoot.dataset.activeIndex = String(nextIndex);
+          const current = Number(carouselRoot.dataset.activeIndex ?? '0');
+          setActive(current + (wheelDelta > 0 ? 1 : -1), true);
+          wheelDelta = 0;
+        },
+        { passive: false, signal: ac.signal }
+      );
 
-      if (shouldFocus) {
-        activeItem?.focus();
-      }
-    };
+      // Limpiar listeners al salir de la página
+      document.addEventListener('astro:before-swap', () => ac.abort(), { once: true });
 
-    // Click on items
-    items.forEach((item, index) => {
-      item.addEventListener('click', () => setActive(index));
-      item.addEventListener('keydown', (event) => {
-        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
-          event.preventDefault();
-          setActive(index + 1, true);
-        }
-        if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
-          event.preventDefault();
-          setActive(index - 1, true);
-        }
-        if (event.key === 'Home') {
-          event.preventDefault();
-          setActive(0, true);
-        }
-        if (event.key === 'End') {
-          event.preventDefault();
-          setActive(totalItems - 1, true);
-        }
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          setActive(index, true);
-        }
-      });
+      // Initialize
+      setActive(Number(carouselRoot.dataset.activeIndex ?? '0'));
     });
-
-    // Previous / Next buttons
-    if (prevBtn) {
-      prevBtn.addEventListener('click', () => {
-        const current = Number(carouselRoot.dataset.activeIndex ?? '0');
-        setActive(current - 1, true);
-      });
-    }
-
-    if (nextBtn) {
-      nextBtn.addEventListener('click', () => {
-        const current = Number(carouselRoot.dataset.activeIndex ?? '0');
-        setActive(current + 1, true);
-      });
-    }
-
-    // Indicator dots
-    indicators.forEach((dot, index) => {
-      dot.addEventListener('click', () => setActive(index, true));
-    });
-
-    carouselRoot.addEventListener(
-      'wheel',
-      (event) => {
-        if (totalItems <= 1) return;
-
-        event.preventDefault();
-
-        const dominantDelta = Math.abs(event.deltaY) >= Math.abs(event.deltaX)
-          ? event.deltaY
-          : event.deltaX;
-
-        wheelDelta += dominantDelta;
-
-        if (Math.abs(wheelDelta) < 40) return;
-
-        const current = Number(carouselRoot.dataset.activeIndex ?? '0');
-        setActive(current + (wheelDelta > 0 ? 1 : -1), true);
-        wheelDelta = 0;
-      },
-      { passive: false }
-    );
-
-    // Initialize
-    setActive(Number(carouselRoot.dataset.activeIndex ?? '0'));
   }
+
+  document.addEventListener('astro:page-load', initCarousels);
 </script>
 
 <style>

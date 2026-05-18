@@ -55,26 +55,35 @@ const activeWatch = watches[0];
   </main>
 </div>
 
-<script is:inline>
-  const htmlRoot = document.documentElement;
-  const previousHtmlOverflow = htmlRoot.style.overflow;
-  const previousBodyOverflow = document.body.style.overflow;
-  const previousBodyOverscroll = document.body.style.overscrollBehavior;
+<script>
+  function initVitrineStage() {
+    const htmlRoot = document.documentElement;
+    // Only apply if we are on the vitrine page (it has .vitrine-shell)
+    if (!document.querySelector('.vitrine-shell')) return;
 
-  document.body.dataset.vitrine = 'true';
-  htmlRoot.style.overflow = 'hidden';
-  document.body.style.overflow = 'hidden';
-  document.body.style.overscrollBehavior = 'none';
+    const previousHtmlOverflow = htmlRoot.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousBodyOverscroll = document.body.style.overscrollBehavior;
 
-  window.addEventListener(
-    'pagehide',
-    () => {
+    document.body.dataset.vitrine = 'true';
+    htmlRoot.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    document.body.style.overscrollBehavior = 'none';
+
+    const cleanup = () => {
       htmlRoot.style.overflow = previousHtmlOverflow;
       document.body.style.overflow = previousBodyOverflow;
       document.body.style.overscrollBehavior = previousBodyOverscroll;
-    },
-    { once: true }
-  );
+      delete document.body.dataset.vitrine;
+    };
+
+    // Para View Transitions: limpia antes de cambiar a otra página
+    document.addEventListener('astro:before-swap', cleanup, { once: true });
+    // Para recargas o cierres normales
+    window.addEventListener('pagehide', cleanup, { once: true });
+  }
+
+  document.addEventListener('astro:page-load', initVitrineStage);
 </script>
 
 <style>
