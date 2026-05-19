@@ -40,5 +40,19 @@ const shouldShowLoadingScreen =
       <LoadingScreen variant="black" minDuration={2000} showOn={loadingScreenShowOn} />
     )}
     <slot />
+
+    <script>
+      function trackNavigation() {
+        const current = window.location.pathname;
+        const prev = sessionStorage.getItem('currentPath');
+        if (prev && prev !== current) {
+          sessionStorage.setItem('prevPath', prev);
+        }
+        sessionStorage.setItem('currentPath', current);
+      }
+
+      // Run on every page load (initial and client-side transitions)
+      document.addEventListener('astro:page-load', trackNavigation);
+    </script>
   </body>
 </html>

@@ -107,6 +107,182 @@ main {
   outline-offset: 4px;
 }
 
+/* ── Layout & Utils ─────────────────────────────────── */
+.container {
+  width: min(100%, 1280px);
+  margin-inline: auto;
+  padding-inline: var(--space-24);
+}
+
+/* ── Catalog Header (Global) ───────────────────────── */
+.catalog-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  width: 100%;
+  background: linear-gradient(
+    180deg,
+    var(--color-surface-lowest) 0%,
+    var(--color-surface-lowest) 68%,
+    rgb(14 14 14 / 0) 100%
+  );
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+}
+
+.catalog-header__inner {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  min-height: 4.5rem;
+  width: 100%;
+  padding: var(--space-16) var(--space-24) var(--space-16);
+}
+
+.catalog-header__brand {
+  justify-self: start;
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.catalog-header__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(var(--space-16), 4vw, var(--space-32));
+}
+
+.catalog-header__link {
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-body);
+  font-size: var(--text-label-md);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: color var(--transition-precision);
+}
+
+.catalog-header__link:hover,
+.catalog-header__link.is-active {
+  color: var(--color-primary);
+}
+
+.catalog-header__link.is-active {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+.catalog-header__actions {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: var(--space-16);
+}
+
+.catalog-header__icon,
+.catalog-header__profile {
+  display: inline-grid;
+  place-items: center;
+  color: var(--color-on-surface-variant);
+  transition: color var(--transition-precision);
+}
+
+.catalog-header__icon {
+  width: 2rem;
+  height: 2rem;
+}
+
+.catalog-header__icon svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+
+.catalog-header__profile {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: rgb(var(--color-surface-variant-rgb) / 0.6);
+  font-family: var(--font-body);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.catalog-header__icon:hover,
+.catalog-header__profile:hover {
+  color: var(--color-primary);
+}
+
+@media (max-width: 720px) {
+  .catalog-header__inner {
+    min-height: 4rem;
+    padding: var(--space-12) var(--space-16);
+  }
+
+  .catalog-header__brand,
+  .catalog-header__link {
+    font-size: 0.8125rem;
+  }
+
+  .catalog-header__actions {
+    gap: var(--space-8);
+  }
+
+  .catalog-header__profile {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+/* ── Filter pills (Global) ────────────────────────── */
+.catalog-filters {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.filter-pill {
+  padding: var(--space-8) var(--space-16);
+  border-radius: 999px;
+  border: 1px solid rgb(var(--color-outline-variant-rgb) / 0.25);
+  background: transparent;
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    background var(--transition-precision),
+    color var(--transition-precision),
+    border-color var(--transition-precision);
+}
+
+.filter-pill:hover {
+  border-color: rgb(var(--color-outline-variant-rgb) / 0.5);
+  color: var(--color-on-surface);
+}
+
+.filter-pill.is-active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: 600;
+}
+
+/* ── Typography / Utility Classes ──────────────────── */
+
 .page-shell {
   width: min(1120px, calc(100% - (var(--space-24) * 2)));
   margin: 0 auto;
@@ -125,4 +301,51 @@ main {
     transition-duration: 0s !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ── View Transitions (Chrome DevDocs + Anti-Ghosting) ── */
+
+@keyframes vt-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* 1. Transición suave solo para el fondo/página entera (root) */
+::view-transition-old(root) {
+  animation: vt-fade-out 300ms ease-out forwards;
+}
+::view-transition-new(root) {
+  animation: vt-fade-in 400ms ease-out forwards;
+}
+
+/* 2. Para el reloj volador: Curva de vuelo */
+::view-transition-group(*) {
+  animation-duration: 600ms;
+  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* 3. ANTI-FANTASMA (El Fix Definitivo)
+   Ocultamos la imagen vieja de inmediato y mostramos la nueva al 100%. 
+   Así solo "vuela" 1 sola imagen limpia, sin mezclarse ni verse doble en el medio. */
+::view-transition-old(*):not(::view-transition-old(root)) {
+  animation: none;
+  opacity: 0 !important;
+  display: none;
+}
+
+::view-transition-new(*):not(::view-transition-new(root)) {
+  animation: none;
+  opacity: 1 !important;
+  mix-blend-mode: normal;
+  height: 100%;
+  object-fit: contain;
+}
+
+::view-transition-image-pair(*) {
+  isolation: isolate;
 }

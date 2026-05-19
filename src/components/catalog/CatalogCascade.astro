@@ -6,19 +6,13 @@ interface Props {
 }
 
 const { watches } = Astro.props;
-
-// Cascade offset per column position (0, 1, 2)
-const cascadeOffset = ['0px', '80px', '160px'];
 ---
 
 <ul class="catalog-cascade" role="list" aria-label="Catálogo de relojes">
   {watches.map((watch, i) => {
-    const col = i % 3;
-    const offset = cascadeOffset[col];
     return (
       <li
         class="cascade-item"
-        style={`--cascade-drop: ${offset}`}
         data-category={watch.mood ?? 'all'}
       >
         <a
@@ -66,17 +60,15 @@ const cascadeOffset = ['0px', '80px', '160px'];
   })}
 </ul>
 
-
-<style>
+<style is:global>
   .catalog-cascade {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-24);
+    gap: 1rem;
     align-items: start;
   }
 
   .cascade-item {
-    margin-top: var(--cascade-drop, 0px);
     transition: transform var(--transition-precision), opacity var(--transition-precision);
   }
 
@@ -97,12 +89,20 @@ const cascadeOffset = ['0px', '80px', '160px'];
     box-shadow: 0 24px 60px rgb(var(--color-shadow-rgb) / 0.7);
   }
 
-  /* Image container */
+  /* Image container with universal golden gradient background */
   .cascade-item__image-wrap {
     position: relative;
     aspect-ratio: 3 / 3.5;
     overflow: hidden;
-    background: #0e0e0e;
+    background: 
+      linear-gradient(
+        to top left,
+        rgb(160 130 65 / 0.32) 0%,
+        rgb(115 90 45 / 0.12) 35%,
+        transparent 60%
+      ),
+      var(--color-surface);
+    transition: background var(--transition-precision);
   }
 
   /* Both images share the same slot */
@@ -197,10 +197,7 @@ const cascadeOffset = ['0px', '80px', '160px'];
       grid-template-columns: repeat(2, 1fr);
     }
 
-    .cascade-item {
-      /* On 2-col, alternate drop */
-      margin-top: calc(var(--cascade-drop, 0px) * 0.5);
-    }
+
   }
 
   /* Responsive: 1 col mobile */
@@ -210,8 +207,6 @@ const cascadeOffset = ['0px', '80px', '160px'];
       gap: var(--space-16);
     }
 
-    .cascade-item {
-      margin-top: 0;
-    }
+
   }
 </style>

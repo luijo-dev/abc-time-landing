@@ -23,12 +23,6 @@ import { watches } from '../data/watches';
           </h1>
         </div>
 
-        <!-- Filter pills -->
-        <div class="catalog-filters" role="group" aria-label="Filtrar por categoría">
-          <button class="filter-pill is-active" data-filter="all">Todos</button>
-          <button class="filter-pill" data-filter="gold">Complicaciones</button>
-          <button class="filter-pill" data-filter="smoke">Deportivos</button>
-        </div>
       </section>
 
       <!-- Cascade grid -->
@@ -51,43 +45,46 @@ import { watches } from '../data/watches';
 </Base>
 
 <script>
-  function initFilters() {
-    const CASCADE_OFFSETS = ['0px', '80px', '160px'];
+  const FILTER_KEY = 'avc-catalog-filter';
 
+  function initFilters() {
     const pills = document.querySelectorAll<HTMLButtonElement>('.filter-pill');
     const items = document.querySelectorAll<HTMLElement>('.cascade-item');
+    const watchLinks = document.querySelectorAll<HTMLAnchorElement>('.cascade-item__link');
 
-    // Si no estamos en la página del catálogo, no hacemos nada
     if (pills.length === 0 || items.length === 0) return;
 
     function applyFilter(filter: string) {
-      let visibleCount = 0;
+      // Sync pill active state
+      pills.forEach((p) => {
+        p.classList.toggle('is-active', p.dataset.filter === filter);
+      });
 
       items.forEach((item) => {
         const match = filter === 'all' || item.dataset.category === filter;
         if (match) {
           item.style.display = '';
-          // Recalculate cascade drop based on visible position
-          const col = visibleCount % 3;
-          item.style.setProperty('--cascade-drop', CASCADE_OFFSETS[col]);
-          visibleCount++;
         } else {
           item.style.display = 'none';
         }
       });
     }
 
+    // Cuando el usuario hace clic en una píldora, guardar el filtro
     pills.forEach((pill) => {
       pill.addEventListener('click', () => {
-        pills.forEach((p) => p.classList.remove('is-active'));
-        pill.classList.add('is-active');
-        applyFilter(pill.dataset.filter ?? 'all');
+        const filter = pill.dataset.filter ?? 'all';
+        sessionStorage.setItem(FILTER_KEY, filter);
+        applyFilter(filter);
       });
     });
 
-    // Siempre buscamos cuál es el activo al cargar (para retener estado si se quiere, o resetear)
-    const activePill = document.querySelector<HTMLButtonElement>('.filter-pill.is-active');
-    applyFilter(activePill?.dataset.filter ?? 'all');
+    // Cuando el usuario hace clic en un reloj, el filtro ya está guardado
+    // No necesitamos hacer nada extra aquí, sessionStorage persiste la sesión
+
+    // Al volver al catálogo, restaurar el último filtro activo
+    const savedFilter = sessionStorage.getItem(FILTER_KEY) ?? 'all';
+    applyFilter(savedFilter);
   }
 
   document.addEventListener('astro:page-load', initFilters);
@@ -112,7 +109,7 @@ import { watches } from '../data/watches';
   .catalog-main {
     width: min(1200px, calc(100% - var(--space-48)));
     margin: 0 auto;
-    padding: var(--space-48) 0 var(--space-64);
+    padding: 0;
   }
 
   /* ── Hero ── */
@@ -137,7 +134,7 @@ import { watches } from '../data/watches';
 
   .catalog-hero__title {
     font-family: var(--font-display);
-    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-size: clamp(1.75rem, 4vw, 2rem);
     font-weight: 700;
     line-height: var(--line-height-tight);
     color: var(--color-on-surface);
@@ -146,44 +143,6 @@ import { watches } from '../data/watches';
 
   .catalog-hero__title--dim {
     color: var(--color-on-surface-variant);
-  }
-
-  /* ── Filter pills ── */
-  .catalog-filters {
-    display: flex;
-    align-items: center;
-    gap: var(--space-8);
-    flex-wrap: wrap;
-    align-self: flex-end;
-  }
-
-  .filter-pill {
-    padding: var(--space-8) var(--space-16);
-    border-radius: 999px;
-    border: 1px solid rgb(var(--color-outline-variant-rgb) / 0.25);
-    background: transparent;
-    color: var(--color-on-surface-variant);
-    font-family: var(--font-body);
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-    cursor: pointer;
-    transition:
-      background var(--transition-precision),
-      color var(--transition-precision),
-      border-color var(--transition-precision);
-  }
-
-  .filter-pill:hover {
-    border-color: rgb(var(--color-outline-variant-rgb) / 0.5);
-    color: var(--color-on-surface);
-  }
-
-  .filter-pill.is-active {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-    color: var(--color-on-primary);
-    font-weight: 600;
   }
 
   /* ── Grid section ── */
