@@ -20,6 +20,7 @@ const { item, isActive = false, index } = Astro.props;
   data-index={index}
   data-cta-url={item.ctaUrl}
   data-cta-label={item.ctaLabel ?? 'Hablar por WhatsApp'}
+  data-watch-id={item.id}
   data-watch-name={item.name}
   data-watch-collection={item.collection}
   data-mood={item.mood ?? ''}
