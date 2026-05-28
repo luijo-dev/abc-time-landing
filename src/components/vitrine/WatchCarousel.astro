@@ -32,6 +32,7 @@ const { items } = Astro.props;
           src={item.image?.src}
           alt={item.image?.alt ?? `${item.collection} ${item.name}`}
           priority={item.image?.priority}
+          transitionName={`watch-img-${item.id}`}
         />
       </WatchCarouselItem>
     ))}
@@ -70,26 +71,21 @@ const { items } = Astro.props;
 </section>
 
 <script>
-  function initCarousels() {
-    const carousels = document.querySelectorAll('[data-carousel]');
+  import { navigate } from 'astro:transitions/client';
 
-    carousels.forEach((carouselRoot) => {
-      if (!(carouselRoot instanceof HTMLElement)) return;
-
-      const vitrineScope = carouselRoot.closest('.vitrine-shell') ?? document;
+  // Exponemos la lógica de estado a window para poder usarla antes de que el DOM sea insertado
+  (window as any).updateCarouselState = function(carouselRoot: HTMLElement, rawIndex: number) {
+      const vitrineScope = carouselRoot.closest('.vitrine-shell') ?? carouselRoot.getRootNode();
       const items = Array.from(carouselRoot.querySelectorAll('[data-carousel-item]'));
-      const specPanels = Array.from(vitrineScope.querySelectorAll('[data-spec-panel]'));
-      const ctaLink = vitrineScope.querySelector('[data-vitrine-cta-link]');
-      const ctaCopy = vitrineScope.querySelector('[data-vitrine-cta-copy]');
-      const stageName = vitrineScope.querySelector('[data-watch-stage-name]');
-      const stageCollection = vitrineScope.querySelector('[data-watch-stage-collection]');
-      const headerCta = vitrineScope.querySelector('[data-header-cta]');
+      const specPanels = Array.from((vitrineScope as Element).querySelectorAll('[data-spec-panel]'));
+      const ctaLink = (vitrineScope as Element).querySelector('[data-vitrine-cta-link]');
+      const ctaCopy = (vitrineScope as Element).querySelector('[data-vitrine-cta-copy]');
+      const stageName = (vitrineScope as Element).querySelector('[data-watch-stage-name]');
+      const stageCollection = (vitrineScope as Element).querySelector('[data-watch-stage-collection]');
+      const headerCta = (vitrineScope as Element).querySelector('[data-header-cta]');
       const indicators = Array.from(carouselRoot.querySelectorAll('[data-carousel-indicator]'));
-      const prevBtn = carouselRoot.querySelector('[data-carousel-prev]');
-      const nextBtn = carouselRoot.querySelector('[data-carousel-next]');
-      const background = vitrineScope.querySelector('[data-vitrine-background]');
+      const background = (vitrineScope as Element).querySelector('[data-vitrine-background]');
       const totalItems = items.length;
-      let wheelDelta = 0;
 
       const getSlot = (index: number, activeIndex: number) => {
         const rawOffset = index - activeIndex;
@@ -106,77 +102,94 @@ const { items } = Astro.props;
         return 'far-next';
       };
 
+      const nextIndex = ((rawIndex % totalItems) + totalItems) % totalItems;
+
+      items.forEach((item, index) => {
+        const isActive = index === nextIndex;
+        const slot = getSlot(index, nextIndex);
+        const isAdjacent = slot === 'prev' || slot === 'next';
+        const isBackground = slot === 'far-prev' || slot === 'far-next';
+
+        item.classList.toggle('is-active', isActive);
+        item.classList.toggle('is-adjacent', isAdjacent && !isActive);
+        item.classList.toggle('is-background', isBackground);
+        item.setAttribute('data-slot', slot);
+        item.setAttribute('aria-selected', String(isActive));
+        if (isActive) {
+          item.setAttribute('aria-current', 'true');
+        } else {
+          item.removeAttribute('aria-current');
+        }
+        (item as HTMLElement).tabIndex = isActive ? 0 : -1;
+      });
+
+      specPanels.forEach((panel) => {
+        const isActive = panel.getAttribute('data-spec-index') === String(nextIndex);
+        panel.classList.toggle('is-hidden', !isActive);
+        panel.setAttribute('aria-hidden', String(!isActive));
+      });
+
+      indicators.forEach((dot, index) => {
+        dot.classList.toggle('is-active', index === nextIndex);
+        dot.setAttribute('aria-selected', String(index === nextIndex));
+      });
+
+      const activeItem = items[nextIndex];
+      if (ctaLink instanceof HTMLAnchorElement && activeItem instanceof HTMLElement) {
+        ctaLink.href = activeItem.dataset.ctaUrl ?? ctaLink.href;
+        if (ctaCopy instanceof HTMLElement) {
+          ctaCopy.textContent = activeItem.dataset.ctaLabel ?? 'Hablar por WhatsApp';
+        }
+        const watchName = activeItem.dataset.watchName ?? '';
+        const watchCollection = activeItem.dataset.watchCollection ?? '';
+        ctaLink.setAttribute('aria-label', `Hablar por WhatsApp sobre ${watchCollection} ${watchName}`);
+      }
+
+      if (activeItem instanceof HTMLElement) {
+        if (stageName instanceof HTMLElement) {
+          stageName.textContent = activeItem.dataset.watchName ?? '';
+        }
+
+        if (stageCollection instanceof HTMLElement) {
+          stageCollection.textContent = activeItem.dataset.watchCollection ?? '';
+        }
+      }
+
+      // Update header CTA
+      if (headerCta instanceof HTMLAnchorElement && activeItem instanceof HTMLElement) {
+        headerCta.href = activeItem.dataset.ctaUrl ?? headerCta.href;
+      }
+
+      // Update background mood
+      if (background instanceof HTMLElement && activeItem instanceof HTMLElement) {
+        const mood = activeItem.dataset.mood;
+        background.className = 'vitrine-background';
+        if (mood) {
+          background.classList.add(`vitrine-background--${mood}`);
+        }
+      }
+
+      carouselRoot.dataset.activeIndex = String(nextIndex);
+  };
+
+  function initCarousels() {
+    const carousels = document.querySelectorAll('[data-carousel]');
+
+    carousels.forEach((carouselRoot) => {
+      if (!(carouselRoot instanceof HTMLElement)) return;
+
+      const items = Array.from(carouselRoot.querySelectorAll('[data-carousel-item]'));
+      const indicators = Array.from(carouselRoot.querySelectorAll('[data-carousel-indicator]'));
+      const prevBtn = carouselRoot.querySelector('[data-carousel-prev]');
+      const nextBtn = carouselRoot.querySelector('[data-carousel-next]');
+      const totalItems = items.length;
+      let wheelDelta = 0;
+
       const setActive = (rawIndex: number, shouldFocus = false) => {
-        const nextIndex = ((rawIndex % totalItems) + totalItems) % totalItems;
-
-        items.forEach((item, index) => {
-          const isActive = index === nextIndex;
-          const slot = getSlot(index, nextIndex);
-          const isAdjacent = slot === 'prev' || slot === 'next';
-          const isBackground = slot === 'far-prev' || slot === 'far-next';
-
-          item.classList.toggle('is-active', isActive);
-          item.classList.toggle('is-adjacent', isAdjacent && !isActive);
-          item.classList.toggle('is-background', isBackground);
-          item.setAttribute('data-slot', slot);
-          item.setAttribute('aria-selected', String(isActive));
-          if (isActive) {
-            item.setAttribute('aria-current', 'true');
-          } else {
-            item.removeAttribute('aria-current');
-          }
-          (item as HTMLElement).tabIndex = isActive ? 0 : -1;
-        });
-
-        specPanels.forEach((panel) => {
-          const isActive = panel.getAttribute('data-spec-index') === String(nextIndex);
-          panel.classList.toggle('is-hidden', !isActive);
-          panel.setAttribute('aria-hidden', String(!isActive));
-        });
-
-        indicators.forEach((dot, index) => {
-          dot.classList.toggle('is-active', index === nextIndex);
-          dot.setAttribute('aria-selected', String(index === nextIndex));
-        });
-
-        const activeItem = items[nextIndex];
-        if (ctaLink instanceof HTMLAnchorElement && activeItem instanceof HTMLElement) {
-          ctaLink.href = activeItem.dataset.ctaUrl ?? ctaLink.href;
-          if (ctaCopy instanceof HTMLElement) {
-            ctaCopy.textContent = activeItem.dataset.ctaLabel ?? 'Hablar por WhatsApp';
-          }
-          const watchName = activeItem.dataset.watchName ?? '';
-          const watchCollection = activeItem.dataset.watchCollection ?? '';
-          ctaLink.setAttribute('aria-label', `Hablar por WhatsApp sobre ${watchCollection} ${watchName}`);
-        }
-
-        if (activeItem instanceof HTMLElement) {
-          if (stageName instanceof HTMLElement) {
-            stageName.textContent = activeItem.dataset.watchName ?? '';
-          }
-
-          if (stageCollection instanceof HTMLElement) {
-            stageCollection.textContent = activeItem.dataset.watchCollection ?? '';
-          }
-        }
-
-        // Update header CTA
-        if (headerCta instanceof HTMLAnchorElement && activeItem instanceof HTMLElement) {
-          headerCta.href = activeItem.dataset.ctaUrl ?? headerCta.href;
-        }
-
-        // Update background mood
-        if (background instanceof HTMLElement && activeItem instanceof HTMLElement) {
-          const mood = activeItem.dataset.mood;
-          background.className = 'vitrine-background';
-          if (mood) {
-            background.classList.add(`vitrine-background--${mood}`);
-          }
-        }
-
-        carouselRoot.dataset.activeIndex = String(nextIndex);
-
+        (window as any).updateCarouselState(carouselRoot, rawIndex);
         if (shouldFocus) {
+          const nextIndex = ((rawIndex % totalItems) + totalItems) % totalItems;
+          const activeItem = items[nextIndex];
           (activeItem as HTMLElement)?.focus();
         }
       };
@@ -186,9 +199,20 @@ const { items } = Astro.props;
 
       // Click on items
       items.forEach((item, index) => {
-        item.addEventListener('click', () => setActive(index));
+        item.addEventListener('click', () => {
+          const current = Number(carouselRoot.dataset.activeIndex ?? '0');
+          if (current === index) {
+            const watchId = (item as HTMLElement).dataset.watchId;
+            if (watchId) {
+              navigate(`/watches/${watchId}`);
+            }
+          } else {
+            setActive(index);
+          }
+        });
         item.addEventListener('keydown', (event: Event) => {
           const e = event as KeyboardEvent;
+          const current = Number(carouselRoot.dataset.activeIndex ?? '0');
           if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
             e.preventDefault();
             setActive(index + 1, true);
@@ -207,7 +231,14 @@ const { items } = Astro.props;
           }
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            setActive(index, true);
+            if (current === index) {
+              const watchId = (item as HTMLElement).dataset.watchId;
+              if (watchId) {
+                navigate(`/watches/${watchId}`);
+              }
+            } else {
+              setActive(index, true);
+            }
           }
         });
       });
@@ -263,7 +294,13 @@ const { items } = Astro.props;
       document.addEventListener('astro:before-swap', () => ac.abort(), { once: true });
 
       // Initialize
-      setActive(Number(carouselRoot.dataset.activeIndex ?? '0'));
+      const activeWatchId = sessionStorage.getItem('activeWatchId');
+      let initialIndex = Number(carouselRoot.dataset.activeIndex ?? '0');
+      if (activeWatchId) {
+        const targetItem = items.findIndex((item) => (item as HTMLElement).dataset.watchId === activeWatchId);
+        if (targetItem !== -1) initialIndex = targetItem;
+      }
+      setActive(initialIndex);
     });
   }
 

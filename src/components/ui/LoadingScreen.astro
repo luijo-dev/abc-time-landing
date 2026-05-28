@@ -44,6 +44,9 @@ const rootClassName = `loading-screen loading-screen--${variant}`;
       });
 
       timer.then(() => {
+        // Marcar como visto para el resto de la sesión de esta pestaña
+        sessionStorage.setItem('splashShown', 'true');
+
         loadingScreen.classList.add('loading-screen--fade-out');
 
         const removeLoadingScreen = () => {
@@ -63,6 +66,11 @@ const rootClassName = `loading-screen loading-screen--${variant}`;
 </script>
 
 <style>
+  /* Si el splash ya corrió en esta sesión, ocultarlo antes de pintar */
+  :global(html.splash-done) [data-loading-screen-root] {
+    display: none !important;
+  }
+
   .loading-screen-root {
     position: fixed;
     inset: 0;

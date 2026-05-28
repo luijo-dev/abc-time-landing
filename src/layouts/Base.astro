@@ -33,6 +33,12 @@ const shouldShowLoadingScreen =
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif:wght@400;500;600;700&display=swap"
     />
     <ClientRouter />
+    <!-- Previene flash en hard reloads si ya se mostró -->
+    <script is:inline>
+      if (sessionStorage.getItem('splashShown') === 'true') {
+        document.documentElement.classList.add('splash-done');
+      }
+    </script>
     <title>{title}</title>
   </head>
   <body>
@@ -49,10 +55,38 @@ const shouldShowLoadingScreen =
           sessionStorage.setItem('prevPath', prev);
         }
         sessionStorage.setItem('currentPath', current);
+
+        const match = current.match(/^\/watches\/([^/]+)$/);
+        if (match) {
+          sessionStorage.setItem('activeWatchId', match[1]);
+        }
       }
 
       // Run on every page load (initial and client-side transitions)
       document.addEventListener('astro:page-load', trackNavigation);
+
+      // Previene flash en navegaciones de View Transitions (SPA) y restaura estado del carrusel
+      document.addEventListener('astro:before-swap', (e) => {
+        if (sessionStorage.getItem('splashShown') === 'true') {
+          const splash = e.newDocument.querySelector('[data-loading-screen-root]');
+          if (splash) {
+            splash.remove();
+          }
+          e.newDocument.documentElement.classList.add('splash-done');
+        }
+
+        const carousel = e.newDocument.querySelector('[data-carousel]');
+        if (carousel && (window as any).updateCarouselState) {
+          const activeWatchId = sessionStorage.getItem('activeWatchId');
+          if (activeWatchId) {
+            const items = Array.from(carousel.querySelectorAll('[data-carousel-item]'));
+            const targetIndex = items.findIndex(item => (item as HTMLElement).dataset.watchId === activeWatchId);
+            if (targetIndex !== -1) {
+              (window as any).updateCarouselState(carousel as HTMLElement, targetIndex);
+            }
+          }
+        }
+      });
     </script>
   </body>
 </html>
